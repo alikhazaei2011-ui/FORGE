@@ -392,3 +392,144 @@ function showExerciseDetail(id) {
     </main>
   `;
 }
+
+function showWorkoutPlan(plan) {
+  const app = document.getElementById("app");
+
+  const sessionsHTML = plan.sessions.map((session, index) => `
+    <section class="setup-card">
+      <p style="color:#00D4FF">جلسه ${session.day}</p>
+      <h3>${session.title}</h3>
+      <p>زمان پیشنهادی: ${session.duration} دقیقه</p>
+      <p>سطح: ${session.level}</p>
+
+      ${session.exercises.map(exercise => `
+        <div class="exercise-row">
+          <div>
+            <strong>${exercise.name}</strong>
+            <p>${exercise.muscle}</p>
+          </div>
+          <span>${exercise.sets} ست × ${exercise.reps}</span>
+        </div>
+      `).join("")}
+
+      <button class="primary-button" onclick="startForgeSession(${index})">
+        شروع این جلسه ←
+      </button>
+    </section>
+  `).join("");
+
+  app.innerHTML = `
+    <main class="dashboard">
+      <header class="app-header">
+        <div class="brand">
+          <span class="brand-icon">F</span>
+          <span>FORGE</span>
+        </div>
+        <button class="profile-button" onclick="showDashboard()">⌂</button>
+      </header>
+
+      <section class="welcome-section">
+        <p>برنامه اختصاصی تو</p>
+        <h2>مسیر قوی‌تر شدن شروع شد!</h2>
+        <span>جلسه موردنظرت رو انتخاب کن و تمرین رو شروع کن.</span>
+      </section>
+
+      <div style="margin-top:25px">
+        ${sessionsHTML}
+      </div>
+
+      <button class="primary-button" onclick="showDashboard()">بازگشت به خانه</button>
+    </main>
+  `;
+}
+
+function startForgeSession(sessionIndex) {
+  const plan = JSON.parse(localStorage.getItem("forge_plan") || "null");
+
+  if (!plan || !plan.sessions[sessionIndex]) {
+    alert("برنامه تمرینی پیدا نشد.");
+    return;
+  }
+
+  const session = plan.sessions[sessionIndex];
+  const record = ForgeWorkoutTracker.completeSession(session);
+
+  showActiveForgeWorkout(record);
+}
+
+function showActiveForgeWorkout(record) {
+  const app = document.getElementById("app");
+
+  const completed = record.exercises.filter(item => item.completed).length;
+  const total = record.exercises.length;
+  const progress = total ? Math.round((completed / total) * 100) : 0;
+
+  app.innerHTML = `
+    <main class="dashboard">
+      <header class="app-header">
+        <button class="profile-button" onclick="showDashboard()">⌂</button>
+        <div class="brand">
+          <span class="brand-icon">F</span>
+          <span>FORGE</span>
+        </div>
+      </header>
+
+      <section class="welcome-section">
+        <p>ACTIVE WORKOUT</p>
+        <h2>${record.title}</h2>
+        <span>تمرینت رو با تمرکز و فرم صحیح انجام بده.</span>
+      </section>
+
+      <section class="setup-card">
+        <h3>پیشرفت جلسه</h3>
+        <h2 id="workoutProgress">${progress}٪</h2>
+        <div style="height:9px;background:#25283B;border-radius:20px;overflow:hidden;margin-top:12px">
+          <div id="workoutProgressBar" style="height:100%;width:${progress}%;background:linear-gradient(90deg,#9878FF,#00D4FF);border-radius:20px;transition:.3s"></div>
+        </div>
+        <p id="workoutCount" style="margin-top:12px">${completed} از ${total} حرکت انجام شده</p>
+      </section>
+
+      <div id="activeExerciseList">
+        ${record.exercises.map((exercise, index) => `
+          <section class="setup-card">
+            <h3>${exercise.name}</h3>
+            <p>${exercise.sets} ست × ${exercise.reps}</p>
+            <button
+              class="primary-button"
+              onclick="toggleForgeExercise(${record.id}, ${index})"
+              style="${exercise.completed ? "background:#173D3A;color:#7FFFD0" : ""}"
+            >
+              ${exercise.completed ? "✓ انجام شد" : "علامت‌گذاری به‌عنوان انجام‌شده"}
+            </button>
+          </section>
+        `).join("")}
+      </div>
+
+      <button class="primary-button" onclick="finishForgeSession(${record.id})">
+        پایان جلسه
+      </button>
+    </main>
+  `;
+}
+
+function toggleForgeExercise(recordId, exerciseIndex) {
+  const updated = ForgeWorkoutTracker.toggleExercise(recordId, exerciseIndex);
+
+  if (updated) {
+    showActiveForgeWorkout(updated);
+  }
+}
+
+function finishForgeSession(recordId) {
+  const history = ForgeWorkoutTracker.getHistory();
+  const record = history.find(item => item.id === recordId);
+
+  if (!record) return;
+
+  const completed = record.exercises.filter(item => item.completed).length;
+
+  alert(`آفرین! ${completed} حرکت از ${record.exercises.length} حرکت این جلسه رو انجام دادی.`);
+
+  showDashboard();
+}
