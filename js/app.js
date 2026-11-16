@@ -23,18 +23,11 @@ const ForgeApp = (() => {
     }
   };
 
-  const save = (key, value) => {
+  const save = (key, value) =>
     localStorage.setItem(key, JSON.stringify(value));
-  };
-
-  const remove = key => localStorage.removeItem(key);
 
   const escapeHTML = value => String(value ?? "").replace(/[&<>"']/g, char => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;"
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
   })[char]);
 
   const labels = {
@@ -51,9 +44,7 @@ const ForgeApp = (() => {
       advanced: "پیشرفته"
     },
     location: {
-      home: "خانه",
-      gym: "باشگاه",
-      both: "خانه و باشگاه"
+      home: "خانه", gym: "باشگاه", both: "خانه و باشگاه"
     },
     equipment: {
       none: "بدون تجهیزات",
@@ -62,9 +53,7 @@ const ForgeApp = (() => {
       full: "تجهیزات کامل باشگاهی"
     },
     activity: {
-      low: "کم",
-      normal: "متوسط",
-      high: "زیاد"
+      low: "کم", normal: "متوسط", high: "زیاد"
     },
     limitations: {
       none: "محدودیت شناخته‌شده ندارم",
@@ -78,14 +67,10 @@ const ForgeApp = (() => {
       over9: "بیشتر از ۹ ساعت"
     },
     sleepQuality: {
-      poor: "ضعیف",
-      normal: "معمولی",
-      good: "خوب"
+      poor: "ضعیف", normal: "معمولی", good: "خوب"
     },
     fatigue: {
-      low: "کم",
-      normal: "متوسط",
-      high: "زیاد"
+      low: "کم", normal: "متوسط", high: "زیاد"
     },
     intensityPreference: {
       easy: "سبک و آرام",
@@ -121,6 +106,7 @@ const ForgeApp = (() => {
     const items = [
       ["home", "خانه", "showDashboard"],
       ["library", "حرکات", "showExerciseLibrary"],
+      ["rewards", "جوایز", "showRewards"],
       ["progress", "پیشرفت", "showProgress"],
       ["profile", "پروفایل", "showProfile"]
     ];
@@ -151,7 +137,7 @@ const ForgeApp = (() => {
       <select id="${name}" name="${name}" ${required ? "required" : ""}>
         <option value="">انتخاب کنید</option>
         ${options.map(([key, title]) => `
-          <option value="${key}" ${value === key ? "selected" : ""}>${title}</option>
+          <option value="${key}" ${String(value) === String(key) ? "selected" : ""}>${title}</option>
         `).join("")}
       </select>
     `;
@@ -162,8 +148,7 @@ const ForgeApp = (() => {
       <label for="${name}">${label}</label>
       <input id="${name}" name="${name}" type="${type}"
         value="${escapeHTML(value)}"
-        placeholder="${placeholder}"
-        ${attributes}>
+        placeholder="${placeholder}" ${attributes}>
     `;
   }
 
@@ -190,6 +175,9 @@ const ForgeApp = (() => {
   function showDashboard() {
     const profile = read(STORAGE.profile);
     const plan = read(STORAGE.plan);
+    const rewardStats = typeof ForgeRewards !== "undefined"
+      ? ForgeRewards.getStats()
+      : null;
 
     setPage(`
       <main class="dashboard">
@@ -207,6 +195,18 @@ const ForgeApp = (() => {
           "تمرین کن، پیشرفت کن، قوی‌تر شو."
         )}
 
+        ${rewardStats ? `
+          <section class="setup-card">
+            <p style="color:#00D4FF">سطح ${rewardStats.level}</p>
+            <h2>${rewardStats.xp} XP</h2>
+            <p>${rewardStats.unlockedCount} دستاورد از ${rewardStats.totalAchievements}</p>
+            <div style="height:9px;background:#25283B;border-radius:20px;overflow:hidden">
+              <div style="height:100%;width:${rewardStats.progress}%;background:linear-gradient(90deg,#9878FF,#00D4FF)"></div>
+            </div>
+            <button class="primary-button" onclick="showRewards()">مشاهده جوایز ←</button>
+          </section>
+        ` : ""}
+
         <section class="setup-card">
           <div class="setup-icon">⚡</div>
           <h3>برنامه تمرینی اختصاصی</h3>
@@ -219,17 +219,13 @@ const ForgeApp = (() => {
         <section class="setup-card">
           <h3>تمرین‌های من</h3>
           <p>${plan ? "برنامه تمرینی تو آماده مشاهده است." : "هنوز برنامه‌ای نساختی."}</p>
-          <button class="primary-button" onclick="openSavedPlan()">
-            مشاهده برنامه ←
-          </button>
+          <button class="primary-button" onclick="openSavedPlan()">مشاهده برنامه ←</button>
         </section>
 
         <section class="setup-card">
           <h3>کتابخانه حرکات</h3>
           <p>حرکات ورزشی را بررسی کن و روش اجرای صحیح آن‌ها را یاد بگیر.</p>
-          <button class="primary-button" onclick="showExerciseLibrary()">
-            مشاهده حرکات ←
-          </button>
+          <button class="primary-button" onclick="showExerciseLibrary()">مشاهده حرکات ←</button>
         </section>
 
         ${nav("home")}
@@ -247,21 +243,15 @@ const ForgeApp = (() => {
     setPage(`
       <main class="dashboard">
         ${header("showDashboard")}
-
         ${welcome("ارزیابی هوشمند · مرحله ۱ از ۳",
           "اول خودت رو بشناسیم",
           "اطلاعات اولیه برای طراحی برنامه اختصاصی تو.")}
 
         <div class="assessment-form">
           <form id="profileForm">
-            ${input("سن (سال)", "age", "number", p.age || "",
-              "مثلاً ۱۸", 'min="10" max="100" required')}
-
-            ${input("قد (سانتی‌متر)", "height", "number", p.height || "",
-              "مثلاً ۱۷۵", 'min="100" max="230" required')}
-
-            ${input("وزن (کیلوگرم)", "weight", "number", p.weight || "",
-              "مثلاً ۶۵", 'min="20" max="300" step="0.1" required')}
+            ${input("سن (سال)", "age", "number", p.age || "", "مثلاً ۱۸", 'min="10" max="100" required')}
+            ${input("قد (سانتی‌متر)", "height", "number", p.height || "", "مثلاً ۱۷۵", 'min="100" max="230" required')}
+            ${input("وزن (کیلوگرم)", "weight", "number", p.weight || "", "مثلاً ۶۵", 'min="20" max="300" step="0.1" required')}
 
             ${field("هدف اصلی", "goal", [
               ["muscle", "عضله‌سازی و افزایش حجم"],
@@ -293,12 +283,10 @@ const ForgeApp = (() => {
 
     $("#profileForm").onsubmit = event => {
       event.preventDefault();
-
       const data = formData(event.target);
       data.age = Number(data.age);
       data.height = Number(data.height);
       data.weight = Number(data.weight);
-
       save(STORAGE.profile, data);
       showTrainingAssessment();
     };
@@ -314,7 +302,6 @@ const ForgeApp = (() => {
     setPage(`
       <main class="dashboard">
         ${header("showAssessment")}
-
         ${welcome("ارزیابی هوشمند · مرحله ۲ از ۳",
           "شرایط تمرینت چطوره؟",
           "محل، امکانات و زمان تمرینت رو مشخص کن.")}
@@ -322,9 +309,7 @@ const ForgeApp = (() => {
         <div class="assessment-form">
           <form id="trainingForm">
             ${field("محل تمرین", "location", [
-              ["home", "خانه"],
-              ["gym", "باشگاه"],
-              ["both", "خانه و باشگاه"]
+              ["home", "خانه"], ["gym", "باشگاه"], ["both", "خانه و باشگاه"]
             ], t.location)}
 
             ${field("تجهیزات در دسترس", "equipment", [
@@ -335,18 +320,13 @@ const ForgeApp = (() => {
             ], t.equipment)}
 
             ${field("روزهای تمرین در هفته", "days", [
-              ["2", "۲ روز"],
-              ["3", "۳ روز"],
-              ["4", "۴ روز"],
-              ["5", "۵ روز"],
-              ["6", "۶ روز"]
+              ["2", "۲ روز"], ["3", "۳ روز"], ["4", "۴ روز"],
+              ["5", "۵ روز"], ["6", "۶ روز"]
             ], String(t.days || ""))}
 
             ${field("زمان هر جلسه", "duration", [
-              ["20", "۲۰ دقیقه"],
-              ["30", "۳۰ دقیقه"],
-              ["45", "۴۵ دقیقه"],
-              ["60", "۶۰ دقیقه"],
+              ["20", "۲۰ دقیقه"], ["30", "۳۰ دقیقه"],
+              ["45", "۴۵ دقیقه"], ["60", "۶۰ دقیقه"],
               ["90", "۹۰ دقیقه"]
             ], String(t.duration || ""))}
 
@@ -362,9 +342,8 @@ const ForgeApp = (() => {
               ["unsure", "مطمئن نیستم"]
             ], t.limitations)}
 
-            ${textArea("توضیح محدودیت یا آسیب (اختیاری)",
-              "limitationDetails", t.limitationDetails || "",
-              "در صورت تمایل توضیح بده...")}
+            ${textArea("توضیح محدودیت یا آسیب (اختیاری)", "limitationDetails",
+              t.limitationDetails || "", "در صورت تمایل توضیح بده...")}
 
             <button class="primary-button" type="submit">مرحله بعد ←</button>
           </form>
@@ -375,10 +354,8 @@ const ForgeApp = (() => {
     $("#trainingForm").onsubmit = event => {
       event.preventDefault();
       const data = formData(event.target);
-
       data.days = Number(data.days);
       data.duration = Number(data.duration);
-
       save(STORAGE.training, data);
       showRecoveryAssessment();
     };
@@ -394,7 +371,6 @@ const ForgeApp = (() => {
     setPage(`
       <main class="dashboard">
         ${header("showTrainingAssessment")}
-
         ${welcome("ارزیابی هوشمند · مرحله ۳ از ۳",
           "ریکاوری و سبک زندگی",
           "برای تنظیم بهتر فشار تمرین، به چند سؤال پاسخ بده.")}
@@ -402,22 +378,16 @@ const ForgeApp = (() => {
         <div class="assessment-form">
           <form id="recoveryForm">
             ${field("معمولاً چند ساعت می‌خوابی؟", "sleep", [
-              ["under6", "کمتر از ۶ ساعت"],
-              ["6to7", "۶ تا ۷ ساعت"],
-              ["7to9", "۷ تا ۹ ساعت"],
-              ["over9", "بیشتر از ۹ ساعت"]
+              ["under6", "کمتر از ۶ ساعت"], ["6to7", "۶ تا ۷ ساعت"],
+              ["7to9", "۷ تا ۹ ساعت"], ["over9", "بیشتر از ۹ ساعت"]
             ], r.sleep)}
 
             ${field("کیفیت خواب", "sleepQuality", [
-              ["poor", "ضعیف"],
-              ["normal", "معمولی"],
-              ["good", "خوب"]
+              ["poor", "ضعیف"], ["normal", "معمولی"], ["good", "خوب"]
             ], r.sleepQuality)}
 
             ${field("میزان خستگی معمول بعد از فعالیت", "fatigue", [
-              ["low", "کم"],
-              ["normal", "متوسط"],
-              ["high", "زیاد"]
+              ["low", "کم"], ["normal", "متوسط"], ["high", "زیاد"]
             ], r.fatigue)}
 
             ${field("شدت تمرین مورد علاقه", "intensityPreference", [
@@ -429,9 +399,7 @@ const ForgeApp = (() => {
             ${textArea("توضیحات تکمیلی (اختیاری)", "notes",
               r.notes || "", "هر نکته‌ای که به تنظیم تمرین کمک می‌کند...")}
 
-            <button class="primary-button" type="submit">
-              تکمیل ارزیابی و ساخت برنامه ←
-            </button>
+            <button class="primary-button" type="submit">تکمیل ارزیابی و ساخت برنامه ←</button>
           </form>
         </div>
       </main>
@@ -460,7 +428,7 @@ const ForgeApp = (() => {
     }
 
     if (typeof ForgePlanGenerator === "undefined") {
-      showError("موتور برنامه‌ساز بارگذاری نشده است. فایل plan-generator.js را بررسی کن.");
+      showError("موتور برنامه‌ساز بارگذاری نشده است.");
       return;
     }
 
@@ -484,13 +452,11 @@ const ForgeApp = (() => {
 
   function openSavedPlan() {
     const plan = read(STORAGE.plan);
-
     if (!plan) {
       showError("هنوز برنامه‌ای نساختی. ابتدا ارزیابی رو کامل کن.");
       showAssessment();
       return;
     }
-
     showWorkoutPlan(plan);
   }
 
@@ -526,20 +492,15 @@ const ForgeApp = (() => {
     setPage(`
       <main class="dashboard">
         ${header("showDashboard")}
-
-        ${welcome("برنامه اختصاصی تو",
-          "مسیر قوی‌تر شدن شروع شد!",
-          "جلسه موردنظرت رو انتخاب کن.")}
-
+        ${welcome("برنامه اختصاصی تو", "مسیر قوی‌تر شدن شروع شد!", "جلسه موردنظرت رو انتخاب کن.")}
         ${sessionsHTML || `<section class="setup-card">جلسه‌ای در برنامه وجود ندارد.</section>`}
-
         <button class="primary-button" onclick="showDashboard()">بازگشت به خانه</button>
       </main>
     `);
   }
 
   /* =========================================
-     WORKOUT TRACKER
+     WORKOUT TRACKER + REWARDS
      ========================================= */
 
   function startForgeSession(sessionIndex) {
@@ -549,7 +510,6 @@ const ForgeApp = (() => {
     }
 
     const plan = read(STORAGE.plan);
-
     if (!plan || !plan.sessions?.[sessionIndex]) {
       showError("جلسه تمرینی پیدا نشد.");
       return;
@@ -557,6 +517,7 @@ const ForgeApp = (() => {
 
     try {
       const record = ForgeWorkoutTracker.completeSession(plan.sessions[sessionIndex]);
+      if (!record) throw new Error("جلسه ساخته نشد.");
       showActiveForgeWorkout(record);
     } catch (error) {
       console.error(error);
@@ -572,22 +533,15 @@ const ForgeApp = (() => {
     setPage(`
       <main class="dashboard">
         ${header("showDashboard")}
-
-        ${welcome("تمرین فعال",
-          escapeHTML(record.title),
-          "با تمرکز و اجرای صحیح حرکت‌ها تمرین کن.")}
+        ${welcome("تمرین فعال", escapeHTML(record.title), "با تمرکز و اجرای صحیح حرکت‌ها تمرین کن.")}
 
         <section class="setup-card">
           <h3>پیشرفت جلسه</h3>
-          <h2 id="workoutProgress">${progress}٪</h2>
+          <h2>${progress}٪</h2>
           <div style="height:9px;background:#25283B;border-radius:20px;overflow:hidden;margin-top:12px">
-            <div id="workoutProgressBar"
-              style="height:100%;width:${progress}%;background:linear-gradient(90deg,#9878FF,#00D4FF);border-radius:20px">
-            </div>
+            <div style="height:100%;width:${progress}%;background:linear-gradient(90deg,#9878FF,#00D4FF)"></div>
           </div>
-          <p id="workoutCount" style="margin-top:12px">
-            ${completed} از ${total} حرکت انجام شده
-          </p>
+          <p style="margin-top:12px">${completed} از ${total} حرکت انجام شده</p>
         </section>
 
         ${record.exercises.map((exercise, index) => `
@@ -603,7 +557,7 @@ const ForgeApp = (() => {
         `).join("")}
 
         <button class="primary-button" onclick="finishForgeSession(${record.id})">
-          پایان جلسه
+          پایان جلسه و دریافت امتیاز
         </button>
       </main>
     `);
@@ -611,7 +565,6 @@ const ForgeApp = (() => {
 
   function toggleForgeExercise(recordId, exerciseIndex) {
     if (typeof ForgeWorkoutTracker === "undefined") return;
-
     const updated = ForgeWorkoutTracker.toggleExercise(recordId, exerciseIndex);
     if (updated) showActiveForgeWorkout(updated);
   }
@@ -619,18 +572,115 @@ const ForgeApp = (() => {
   function finishForgeSession(recordId) {
     if (typeof ForgeWorkoutTracker === "undefined") return;
 
-    const record = ForgeWorkoutTracker.getHistory()
-      .find(item => item.id === recordId);
+    const history = ForgeWorkoutTracker.getHistory();
+    const record = history.find(item => String(item.id) === String(recordId));
 
     if (!record) {
       showError("جلسه موردنظر پیدا نشد.");
       return;
     }
 
-    const completed = record.exercises.filter(item => item.completed).length;
+    if (record.status === "completed") {
+      showError("این جلسه قبلاً پایان یافته است.");
+      showProgress();
+      return;
+    }
 
-    alert(`آفرین! ${completed} حرکت از ${record.exercises.length} حرکت انجام شد.`);
-    showProgress();
+    const finished = ForgeWorkoutTracker.finishSession(recordId);
+
+    if (!finished) {
+      showError("ثبت پایان تمرین با خطا مواجه شد.");
+      return;
+    }
+
+    const stats = ForgeWorkoutTracker.getStats();
+    let rewardResult = null;
+
+    if (typeof ForgeRewards !== "undefined") {
+      rewardResult = ForgeRewards.awardCompletedSession(recordId, {
+        sessions: stats.completedSessions,
+        sets: stats.completedSets
+      });
+    }
+
+    const earned = rewardResult?.awarded ? rewardResult.earnedXP : 0;
+    const newAchievements = rewardResult?.achievements || [];
+
+    let message = `جلسه تمرینی ثبت شد!\n\n۳۰ امتیاز XP دریافت کردی.`;
+
+    if (rewardResult && !rewardResult.awarded) {
+      message = "این جلسه قبلاً برای دریافت امتیاز ثبت شده است.";
+    }
+
+    if (newAchievements.length) {
+      message += "\n\nدستاوردهای جدید:\n" +
+        newAchievements.map(item => `${item.icon} ${item.title} (+${item.xp} XP)`).join("\n");
+    }
+
+    if (rewardResult?.awarded) {
+      const current = ForgeRewards.getStats();
+      message += `\n\nمجموع امتیاز: ${current.xp} XP`;
+      message += `\nسطح فعلی: ${current.level}`;
+    }
+
+    alert(message);
+    showRewards();
+  }
+
+  /* =========================================
+     REWARDS PAGE
+     ========================================= */
+
+  function showRewards() {
+    if (typeof ForgeRewards === "undefined") {
+      showError("سیستم جوایز بارگذاری نشده است.");
+      return;
+    }
+
+    const stats = ForgeRewards.getStats();
+    const achievements = ForgeRewards.getAchievements();
+
+    const achievementHTML = achievements.map(item => `
+      <section class="setup-card" style="${item.unlocked ? "border:1px solid #9878FF" : "opacity:.7"}">
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="font-size:30px">${item.unlocked ? item.icon : "🔒"}</span>
+          <div style="flex:1">
+            <h3>${escapeHTML(item.title)}</h3>
+            <p>${escapeHTML(item.description)}</p>
+            <p style="color:#00D4FF">${item.xp} XP</p>
+          </div>
+          <strong>${item.unlocked ? "✓" : "قفل"}</strong>
+        </div>
+      </section>
+    `).join("");
+
+    setPage(`
+      <main class="dashboard">
+        ${header("showDashboard")}
+        ${welcome("FORGE REWARDS", "تالار افتخارات", "هر تمرین، یک قدم به سطح بعدی نزدیک‌ترت می‌کنه.")}
+
+        <section class="setup-card">
+          <p style="color:#00D4FF">سطح فعلی</p>
+          <h1 style="font-size:48px;margin:8px 0">${stats.level}</h1>
+          <h3>${stats.xp} XP</h3>
+          <div style="height:12px;background:#25283B;border-radius:20px;overflow:hidden;margin:16px 0">
+            <div style="height:100%;width:${stats.progress}%;background:linear-gradient(90deg,#9878FF,#00D4FF);border-radius:20px"></div>
+          </div>
+          <p>${stats.currentLevelXP} تا ${stats.nextLevelXP} XP</p>
+          <p>${stats.progress}٪ مسیر تا سطح بعدی</p>
+        </section>
+
+        <section class="setup-card">
+          <h3>دستاوردهای بازشده</h3>
+          <h2>${stats.unlockedCount} / ${stats.totalAchievements}</h2>
+        </section>
+
+        <h3 style="margin:24px 0 14px">دستاوردها</h3>
+        ${achievementHTML}
+
+        ${nav("rewards")}
+      </main>
+    `);
   }
 
   /* =========================================
@@ -657,11 +707,8 @@ const ForgeApp = (() => {
       "هوازی": ["هوازی", "کاردیو", "cardio"]
     };
 
-    const values = [
-      item.category,
-      item.muscles,
-      item.name
-    ].flat().map(normalize);
+    const values = [item.category, item.muscles, item.name]
+      .flat().map(normalize);
 
     return (aliases[selected] || [selected])
       .map(normalize)
@@ -677,13 +724,10 @@ const ForgeApp = (() => {
     setPage(`
       <main class="dashboard">
         ${header("showDashboard")}
+        ${welcome("بانک حرکات FORGE", "کتابخانه حرکات", "حرکت موردنظرت رو پیدا کن و روش اجرای صحیحش رو یاد بگیر.")}
 
-        ${welcome("بانک حرکات FORGE",
-          "کتابخانه حرکات",
-          "حرکت موردنظرت رو پیدا کن و روش اجرای صحیحش رو یاد بگیر.")}
-
-        <input id="exerciseSearch" class="exercise-search"
-          type="search" placeholder="جست‌وجوی حرکت یا عضله...">
+        <input id="exerciseSearch" class="exercise-search" type="search"
+          placeholder="جست‌وجوی حرکت یا عضله...">
 
         <div class="exercise-categories">
           <button class="category-btn active" data-category="all">همه</button>
@@ -708,13 +752,8 @@ const ForgeApp = (() => {
 
       if (query) {
         results = results.filter(item => {
-          const searchable = [
-            item.name,
-            item.category,
-            item.muscles,
-            item.equipment
-          ].flat().join(" ");
-
+          const searchable = [item.name, item.category, item.muscles, item.equipment]
+            .flat().join(" ");
           return normalize(searchable).includes(query);
         });
       }
@@ -744,11 +783,7 @@ const ForgeApp = (() => {
     document.querySelectorAll(".category-btn").forEach(button => {
       button.onclick = () => {
         selectedCategory = button.dataset.category;
-
-        document.querySelectorAll(".category-btn").forEach(btn =>
-          btn.classList.remove("active")
-        );
-
+        document.querySelectorAll(".category-btn").forEach(btn => btn.classList.remove("active"));
         button.classList.add("active");
         renderExercises();
       };
@@ -759,6 +794,7 @@ const ForgeApp = (() => {
 
   function showExerciseDetail(id) {
     const exercise = ForgeExerciseLibrary.getById(id);
+
     if (!exercise) {
       showError("حرکت موردنظر پیدا نشد.");
       return;
@@ -767,10 +803,7 @@ const ForgeApp = (() => {
     setPage(`
       <main class="dashboard">
         ${header("showExerciseLibrary")}
-
-        ${welcome("راهنمای حرکت",
-          escapeHTML(exercise.name),
-          escapeHTML(exercise.category))}
+        ${welcome("راهنمای حرکت", escapeHTML(exercise.name), escapeHTML(exercise.category))}
 
         <section class="setup-card">
           <h3>عضلات درگیر</h3>
@@ -796,9 +829,7 @@ const ForgeApp = (() => {
           <p>${escapeHTML(exercise.safety || "حرکت را با فرم صحیح و بدون درد انجام بده.")}</p>
         </section>
 
-        <button class="primary-button" onclick="showExerciseLibrary()">
-          بازگشت به کتابخانه
-        </button>
+        <button class="primary-button" onclick="showExerciseLibrary()">بازگشت به کتابخانه</button>
       </main>
     `);
   }
@@ -819,12 +850,12 @@ const ForgeApp = (() => {
     const historyHTML = history.length
       ? [...history].reverse().map(record => {
           const completed = record.exercises.filter(item => item.completed).length;
-
           return `
             <section class="setup-card">
               <h3>${escapeHTML(record.title)}</h3>
               <p>${new Date(record.date).toLocaleDateString("fa-IR")}</p>
               <p>${completed} از ${record.exercises.length} حرکت انجام شده</p>
+              <p>${record.status === "completed" ? "✓ جلسه پایان‌یافته" : "در حال انجام"}</p>
             </section>
           `;
         }).join("")
@@ -833,14 +864,11 @@ const ForgeApp = (() => {
     setPage(`
       <main class="dashboard">
         ${header("showDashboard")}
-
-        ${welcome("گزارش عملکرد",
-          "مسیر پیشرفت تو",
-          "پیشرفت واقعی با استمرار و تمرین اصولی ساخته می‌شه.")}
+        ${welcome("گزارش عملکرد", "مسیر پیشرفت تو", "پیشرفت واقعی با استمرار و تمرین اصولی ساخته می‌شه.")}
 
         <section class="setup-card">
-          <h3>جلسات ثبت‌شده</h3>
-          <h2>${stats.totalSessions}</h2>
+          <h3>جلسات کامل‌شده</h3>
+          <h2>${stats.completedSessions}</h2>
         </section>
 
         <section class="setup-card">
@@ -849,8 +877,13 @@ const ForgeApp = (() => {
         </section>
 
         <section class="setup-card">
-          <h3>کل حرکات ثبت‌شده</h3>
-          <h2>${stats.totalExercises}</h2>
+          <h3>ست‌های کامل‌شده</h3>
+          <h2>${stats.completedSets}</h2>
+        </section>
+
+        <section class="setup-card">
+          <h3>درصد تکمیل حرکات</h3>
+          <h2>${stats.completionRate}٪</h2>
         </section>
 
         <h3 style="margin:25px 0 15px">تاریخچه تمرین‌ها</h3>
@@ -872,10 +905,7 @@ const ForgeApp = (() => {
     setPage(`
       <main class="dashboard">
         ${header("showDashboard")}
-
-        ${welcome("حساب کاربری",
-          "پروفایل من",
-          "اطلاعات ارزیابی و شرایط تمرین تو.")}
+        ${welcome("حساب کاربری", "پروفایل من", "اطلاعات ارزیابی و شرایط تمرین تو.")}
 
         <section class="setup-card">
           <h3>اطلاعات شخصی</h3>
@@ -923,6 +953,7 @@ const ForgeApp = (() => {
     showActiveForgeWorkout,
     toggleForgeExercise,
     finishForgeSession,
+    showRewards,
     showExerciseLibrary,
     showExerciseDetail,
     showProgress,
@@ -945,6 +976,7 @@ const startForgeSession = index => ForgeApp.startForgeSession(index);
 const showActiveForgeWorkout = record => ForgeApp.showActiveForgeWorkout(record);
 const toggleForgeExercise = (id, index) => ForgeApp.toggleForgeExercise(id, index);
 const finishForgeSession = id => ForgeApp.finishForgeSession(id);
+const showRewards = () => ForgeApp.showRewards();
 const showExerciseLibrary = () => ForgeApp.showExerciseLibrary();
 const showExerciseDetail = id => ForgeApp.showExerciseDetail(id);
 const showProgress = () => ForgeApp.showProgress();
@@ -955,7 +987,5 @@ const showProfile = () => ForgeApp.showProfile();
    ========================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
-  setTimeout(() => {
-    showDashboard();
-  }, 1800);
+  setTimeout(showDashboard, 1800);
 });
