@@ -239,3 +239,144 @@ function showWorkoutPlan(plan) {
     </main>
   `;
 }
+
+function showExerciseLibrary() {
+  const app = document.getElementById("app");
+
+  app.innerHTML = `
+    <main class="dashboard">
+      <header class="app-header">
+        <button class="profile-button" onclick="showDashboard()">→</button>
+        <div class="brand">
+          <span class="brand-icon">F</span>
+          <span>FORGE</span>
+        </div>
+      </header>
+
+      <section class="welcome-section">
+        <p>FORGE EXERCISE DATABASE</p>
+        <h2>کتابخانه حرکات</h2>
+        <span>حرکت مناسب خودت رو پیدا کن و اصولی یاد بگیر.</span>
+      </section>
+
+      <input
+        id="exerciseSearch"
+        class="exercise-search"
+        type="search"
+        placeholder="جست‌وجوی حرکت یا عضله..."
+      >
+
+      <div class="exercise-categories">
+        <button class="category-btn active" data-category="all">همه</button>
+        <button class="category-btn" data-category="پا">پا</button>
+        <button class="category-btn" data-category="سینه">سینه</button>
+        <button class="category-btn" data-category="سرشانه">سرشانه</button>
+        <button class="category-btn" data-category="باسن">باسن</button>
+        <button class="category-btn" data-category="جلو بازو">جلو بازو</button>
+        <button class="category-btn" data-category="هوازی">هوازی</button>
+      </div>
+
+      <div id="exerciseList" class="exercise-list"></div>
+    </main>
+  `;
+
+  let selectedCategory = "all";
+
+  function renderExercises() {
+    const query = document.getElementById("exerciseSearch").value.trim();
+
+    let results = ForgeExerciseLibrary.search(query);
+
+    if (selectedCategory !== "all") {
+      results = results.filter(item => item.category === selectedCategory);
+    }
+
+    document.getElementById("exerciseList").innerHTML =
+      results.length
+        ? results.map(item => `
+          <button class="exercise-card" data-id="${item.id}">
+            <div class="exercise-card-icon">🏋️</div>
+            <div>
+              <strong>${item.name}</strong>
+              <p>${item.category} · ${item.level === "beginner" ? "مبتدی" : item.level}</p>
+            </div>
+            <span>←</span>
+          </button>
+        `).join("")
+        : `<p class="empty-exercises">حرکتی پیدا نشد.</p>`;
+
+    document.querySelectorAll(".exercise-card").forEach(card => {
+      card.onclick = () => showExerciseDetail(card.dataset.id);
+    });
+  }
+
+  document.getElementById("exerciseSearch").addEventListener("input", renderExercises);
+
+  document.querySelectorAll(".category-btn").forEach(button => {
+    button.onclick = () => {
+      selectedCategory = button.dataset.category;
+
+      document.querySelectorAll(".category-btn").forEach(btn => {
+        btn.classList.remove("active");
+      });
+
+      button.classList.add("active");
+      renderExercises();
+    };
+  });
+
+  renderExercises();
+}
+
+function showExerciseDetail(id) {
+  const exercise = ForgeExerciseLibrary.getById(id);
+
+  if (!exercise) return;
+
+  document.getElementById("app").innerHTML = `
+    <main class="dashboard">
+      <header class="app-header">
+        <button class="profile-button" onclick="showExerciseLibrary()">→</button>
+        <div class="brand">
+          <span class="brand-icon">F</span>
+          <span>FORGE</span>
+        </div>
+      </header>
+
+      <section class="welcome-section">
+        <p>EXERCISE GUIDE</p>
+        <h2>${exercise.name}</h2>
+        <span>${exercise.category}</span>
+      </section>
+
+      <section class="setup-card">
+        <div class="setup-icon">🏋️</div>
+        <h3>عضلات درگیر</h3>
+        <p>${exercise.muscles.join("، ")}</p>
+      </section>
+
+      <section class="setup-card">
+        <h3>نحوه اجرای حرکت</h3>
+        ${exercise.instructions.map((step, index) => `
+          <p class="guide-step">${index + 1}. ${step}</p>
+        `).join("")}
+      </section>
+
+      <section class="setup-card">
+        <h3>اشتباهات رایج</h3>
+        ${exercise.mistakes.map(mistake => `
+          <p class="guide-step">⚠️ ${mistake}</p>
+        `).join("")}
+      </section>
+
+      <section class="setup-card">
+        <h3>نکته ایمنی</h3>
+        <p>${exercise.safety}</p>
+      </section>
+
+      <button class="primary-button" onclick="showExerciseLibrary()">
+        بازگشت به کتابخانه
+      </button>
+    </main>
+  `;
+}
