@@ -1,4 +1,8 @@
 
+/* =========================================
+   FORGE - Advanced Rewards System
+   ========================================= */
+
 const ForgeRewards = (() => {
   const STORAGE_KEY = "forge_rewards_v1";
 
@@ -55,12 +59,22 @@ const ForgeRewards = (() => {
 
   function load() {
     try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
-        xp: 0,
-        unlocked: [],
-        claimedSessions: []
+      const saved = JSON.parse(
+        localStorage.getItem(STORAGE_KEY)
+      );
+
+      return {
+        xp: Math.max(0, Number(saved?.xp) || 0),
+        unlocked: Array.isArray(saved?.unlocked)
+          ? saved.unlocked
+          : [],
+        claimedSessions: Array.isArray(saved?.claimedSessions)
+          ? saved.claimedSessions
+          : []
       };
-    } catch {
+    } catch (error) {
+      console.error("FORGE: Rewards loading failed", error);
+
       return {
         xp: 0,
         unlocked: [],
@@ -70,13 +84,44 @@ const ForgeRewards = (() => {
   }
 
   function save(data) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    try {
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(data)
+      );
+      return true;
+    } catch (error) {
+      console.error("FORGE: Rewards saving failed", error);
+      return false;
+    }
+  }
+
+  function normalizeWorkoutStats(workoutStats = {}) {
+    return {
+      sessions: Number(
+        workoutStats.sessions ??
+        workoutStats.completedSessions ??
+        0
+      ),
+      sets: Number(
+        workoutStats.sets ??
+        workoutStats.completedSets ??
+        0
+      )
+    };
   }
 
   function getLevel(xp) {
-    const level = Math.floor(Math.sqrt(Math.max(0, xp) / 100)) + 1;
-    const currentLevelXP = (level - 1) ** 2 * 100;
-    const nextLevelXP = level ** 2 * 100;
+    xp = Math.max(0, Number(xp) || 0);
+
+    const level =
+      Math.floor(Math.sqrt(xp / 100)) + 1;
+
+    const currentLevelXP =
+      (level - 1) ** 2 * 100;
+
+    const nextLevelXP =
+      level ** 2 * 100;
 
     return {
       level,
@@ -94,18 +139,18 @@ const ForgeRewards = (() => {
 
   function getStats() {
     const data = load();
-    const level = getLevel(data.xp);
 
     return {
       xp: data.xp,
-      ...level,
+      ...getLevel(data.xp),
       unlockedCount: data.unlocked.length,
       totalAchievements: ACHIEVEMENTS.length
     };
   }
 
-  function checkAchievements(workoutStats) {
+  function checkAchievements(workoutStats = {}) {
     const data = load();
+    const stats = normalizeWorkoutStats(workoutStats);
     const newlyUnlocked = [];
 
     ACHIEVEMENTS.forEach(achievement => {
@@ -113,7 +158,10 @@ const ForgeRewards = (() => {
         item => item.id === achievement.id
       );
 
-      if (!alreadyUnlocked && achievement.condition(workoutStats)) {
+      if (
+        !alreadyUnlocked &&
+        achievement.condition(stats)
+      ) {
         data.unlocked.push({
           id: achievement.id,
           unlockedAt: new Date().toISOString()
@@ -128,16 +176,18 @@ const ForgeRewards = (() => {
     });
 
     save(data);
+
     return newlyUnlocked;
   }
 
-  function awardCompletedSession(sessionId, workoutStats) {
+  function awardCompletedSession(sessionId, workoutStats = {}) {
     const data = load();
     const id = String(sessionId);
 
     if (data.claimedSessions.includes(id)) {
       return {
         awarded: false,
+        earnedXP: 0,
         xp: data.xp,
         achievements: []
       };
@@ -145,9 +195,19 @@ const ForgeRewards = (() => {
 
     data.claimedSessions.push(id);
     data.xp += 30;
-    save(data);
 
-    const achievements = checkAchievements(workoutStats);
+    if (!save(data)) {
+      return {
+        awarded: false,
+        earnedXP: 0,
+        xp: data.xp,
+        achievements: []
+      };
+    }
+
+    const achievements = checkAchievements(
+      workoutStats
+    );
 
     return {
       awarded: true,
@@ -169,7 +229,13 @@ const ForgeRewards = (() => {
   }
 
   function reset() {
-    localStorage.removeItem(STORAGE_KEY);
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+      return true;
+    } catch (error) {
+      console.error("FORGE: Rewards reset failed", error);
+      return false;
+    }
   }
 
   return {
