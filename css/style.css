@@ -787,3 +787,67 @@ body {
     padding-inline: 3px;
   }
 }
+
+/* FORGE BUTTON FIX */
+
+button.primary-button,
+button.secondary-button,
+button.danger-button {
+  font-family: 'Vazirmatn', sans-serif !important;
+  cursor: pointer;
+  border-radius: 15px;
+  transition: all .2s ease;
+}
+
+button.primary-button {
+  width: 100%;
+  min-height: 49px;
+  padding: 12px 17px;
+  border: 0;
+  background: linear-gradient(110deg, #8055E8, #A17DFF);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 8px 25px rgba(124,58,237,.24);
+}
+
+button.secondary-button {
+  padding: 12px 16px;
+  border: 1px solid rgba(152,120,255,.35);
+  background: rgba(152,120,255,.12);
+  color: #B9A5FF;
+}
+
+button.danger-button {
+  padding: 12px 15px;
+  border: 1px solid rgba(255,90,110,.25);
+  background: rgba(255,90,110,.08);
+  color: #FF8B9A;
+}
+
+button.primary-button:active,
+button.secondary-button:active {
+  transform: scale(.98);
+}
+
+.dashboard {
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 16px 120px;
+  box-sizing: border-box;
+}
+
+.dashboard * {
+  max-width: 100%;
+}
+
+.welcome-section {
+  box-sizing: border-box;
+  width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.bottom-nav {
+  box-sizing: border-box;
+  padding-bottom: max(10px, env(safe-area-inset-bottom));
+}
