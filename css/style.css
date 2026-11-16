@@ -1,0 +1,115 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Vazirmatn:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --bg: #0B0D18;
+  --surface: #15182A;
+  --purple: #9878FF;
+  --cyan: #00D4FF;
+  --text: #F4F4FA;
+  --muted: #9296AA;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Vazirmatn', sans-serif;
+  overflow: hidden;
+}
+
+.splash {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at 50% 40%,
+    rgba(124, 58, 237, 0.18), transparent 40%),
+    radial-gradient(circle at 80% 20%,
+    rgba(0, 212, 255, 0.07), transparent 35%),
+    var(--bg);
+  animation: fadeIn 1.2s ease;
+}
+
+.logo {
+  width: 100px;
+  height: 100px;
+  display: grid;
+  place-items: center;
+  border-radius: 30px;
+  background: linear-gradient(145deg, #29204B, #15182A);
+  border: 1px solid rgba(167, 139, 250, 0.3);
+  color: var(--purple);
+  font-family: 'Manrope', sans-serif;
+  font-size: 58px;
+  font-weight: 800;
+  box-shadow: 0 0 45px rgba(152, 120, 255, 0.2);
+  animation: logoPulse 2.5s infinite ease-in-out;
+}
+
+h1 {
+  margin-top: 25px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 42px;
+  font-weight: 800;
+  letter-spacing: 5px;
+}
+
+.splash p {
+  margin-top: 14px;
+  font-size: 15px;
+  color: #D5D6E2;
+}
+
+.splash span {
+  margin-top: 9px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.loader {
+  width: 90px;
+  height: 3px;
+  margin-top: 65px;
+  border-radius: 20px;
+  background: rgba(152, 120, 255, 0.2);
+  overflow: hidden;
+  position: relative;
+}
+
+.loader::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  border-radius: 20px;
+  background: linear-gradient(90deg, var(--purple), var(--cyan));
+  animation: loading 1.5s infinite ease-in-out;
+}
+
+@keyframes loading {
+  from { transform: translateX(-150%); }
+  to { transform: translateX(250%); }
+}
+
+@keyframes logoPulse {
+  50% {
+    box-shadow: 0 0 65px rgba(152, 120, 255, 0.4);
+    transform: scale(1.04);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
