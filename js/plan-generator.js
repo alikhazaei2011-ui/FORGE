@@ -39,7 +39,9 @@ const ForgePlanGenerator = (() => {
 
   function getNumber(value, fallback) {
     const number = Number(value);
-    return Number.isFinite(number) && number > 0 ? number : fallback;
+    return Number.isFinite(number) && number > 0
+      ? number
+      : fallback;
   }
 
   function getExperienceLevel(value) {
@@ -64,19 +66,29 @@ const ForgePlanGenerator = (() => {
   function getTrainingDays(value) {
     if (Array.isArray(value)) {
       return value.map(day => {
-        if (typeof day === "number") return DAY_NAMES[day % 7];
+        if (typeof day === "number") {
+          return DAY_NAMES[((day % 7) + 7) % 7];
+        }
         return String(day);
       }).slice(0, 6);
     }
 
-    const count = Math.min(6, Math.max(1, getNumber(value, 3)));
+    const count = Math.min(
+      6,
+      Math.max(1, getNumber(value, 3))
+    );
+
     return DAY_NAMES.slice(0, count);
   }
 
   function getEquipment(training) {
-    const text = normalize(training.equipment || training.availableEquipment || "");
-    const location = normalize(training.location);
+    const text = normalize(
+      training.equipment ||
+      training.availableEquipment ||
+      ""
+    );
 
+    const location = normalize(training.location);
     const equipment = ["none"];
 
     if (/بطری|bottle/.test(text)) equipment.push("bottle");
@@ -93,10 +105,15 @@ const ForgePlanGenerator = (() => {
     return [...new Set(equipment)];
   }
 
-  function getRecoveryLevel(recovery) {
+  function getRecoveryLevel(recovery = {}) {
     const sleep = normalize(recovery.sleepQuality);
     const fatigue = normalize(recovery.fatigue);
-    const hours = Number(recovery.sleepDuration || recovery.sleepHours || 0);
+
+    const hours = Number(
+      recovery.sleepDuration ||
+      recovery.sleepHours ||
+      0
+    );
 
     let score = 0;
 
@@ -111,19 +128,30 @@ const ForgePlanGenerator = (() => {
     let level = experience;
 
     if (age < 18) level = Math.min(level, 2);
-    if (recoveryScore >= 2) level = 1;
-    else if (recoveryScore === 1) level = Math.max(1, level - 1);
+
+    if (recoveryScore >= 2) {
+      level = 1;
+    } else if (recoveryScore === 1) {
+      level = Math.max(1, level - 1);
+    }
 
     const preferenceText = normalize(preference);
 
     if (/آسان|easy/.test(preferenceText)) level = 1;
-    if (/متوسط|moderate/.test(preferenceText)) level = Math.min(level, 2);
+
+    if (/متوسط|moderate/.test(preferenceText)) {
+      level = Math.min(level, 2);
+    }
 
     if (age < 18) level = Math.min(level, 2);
 
     return {
       value: level,
-      label: level === 1 ? "آسان" : level === 2 ? "متوسط" : "پیشرفته"
+      label: level === 1
+        ? "آسان"
+        : level === 2
+          ? "متوسط"
+          : "پیشرفته"
     };
   }
 
@@ -139,20 +167,37 @@ const ForgePlanGenerator = (() => {
   function matchesLimitations(exercise, limitations) {
     const text = normalize(limitations);
 
-    if (!text || /ندارم|هیچ|none|no limitation/.test(text)) return true;
+    if (
+      !text ||
+      /ندارم|هیچ|none|no limitation/.test(text)
+    ) return true;
 
     const muscle = normalize(exercise.muscle);
 
     const warningGroups = [
-      { words: ["زانو", "knee"], muscles: ["پا", "ساق", "باسن"] },
-      { words: ["شانه", "سرشانه", "shoulder"], muscles: ["سرشانه", "سینه", "پشت بازو"] },
-      { words: ["مچ", "wrist"], muscles: ["سینه", "پشت بازو", "جلو بازو"] },
-      { words: ["کمر", "back pain", "دیسک"], muscles: ["پشت", "پا", "شکم"] }
+      {
+        words: ["زانو", "knee"],
+        muscles: ["پا", "ساق", "باسن"]
+      },
+      {
+        words: ["شانه", "سرشانه", "shoulder"],
+        muscles: ["سرشانه", "سینه", "پشت بازو"]
+      },
+      {
+        words: ["مچ", "wrist"],
+        muscles: ["سینه", "پشت بازو", "جلو بازو"]
+      },
+      {
+        words: ["کمر", "back pain", "دیسک"],
+        muscles: ["پشت", "پا", "شکم"]
+      }
     ];
 
     for (const group of warningGroups) {
-      if (group.words.some(word => text.includes(word)) &&
-          group.muscles.some(item => muscle.includes(item))) {
+      if (
+        group.words.some(word => text.includes(word)) &&
+        group.muscles.some(item => muscle.includes(item))
+      ) {
         return false;
       }
     }
@@ -160,7 +205,14 @@ const ForgePlanGenerator = (() => {
     return true;
   }
 
-  function chooseExercises(group, goal, equipment, level, limitations, used) {
+  function chooseExercises(
+    group,
+    goal,
+    equipment,
+    level,
+    limitations,
+    used
+  ) {
     const groupMap = {
       full: ["lower", "push", "pull", "core"],
       upper: ["push", "pull"],
@@ -195,6 +247,7 @@ const ForgePlanGenerator = (() => {
 
   function buildSession(day, index, split, settings) {
     const used = settings.used;
+
     const candidates = chooseExercises(
       split,
       settings.goal,
@@ -205,17 +258,28 @@ const ForgePlanGenerator = (() => {
     );
 
     const selected = [];
-    const maxExercises = settings.duration <= 20 ? 4 : settings.duration <= 35 ? 5 : 6;
 
-    for (const group of (split === "full"
+    const maxExercises =
+      settings.duration <= 20
+        ? 4
+        : settings.duration <= 35
+          ? 5
+          : 6;
+
+    const requiredGroups = split === "full"
       ? ["lower", "push", "pull", "core"]
       : split === "upper"
         ? ["push", "pull"]
         : split === "lower"
           ? ["lower", "core"]
-          : [split, "core"])) {
+          : [split, "core"];
 
-      const exercise = candidates.find(item => item.group === group && !used.has(item.name));
+    for (const group of requiredGroups) {
+      const exercise = candidates.find(
+        item =>
+          item.group === group &&
+          !used.has(item.name)
+      );
 
       if (exercise && selected.length < maxExercises) {
         selected.push(exercise);
@@ -231,23 +295,40 @@ const ForgePlanGenerator = (() => {
       used.add(exercise.name);
     }
 
-    const sets = settings.age < 18 ? 2 : settings.intensity.value === 1 ? 2 : 3;
-    const reps = settings.goal === "strength" ? "8 تا 10" : "10 تا 12";
+    const sets = settings.age < 18
+      ? 2
+      : settings.intensity.value === 1
+        ? 2
+        : 3;
+
+    const reps = settings.goal === "strength"
+      ? "8 تا 10"
+      : "10 تا 12";
+
+    const rest = settings.age < 18 ? 90 : 120;
 
     return {
       day,
-      title: split === "full" ? "تمرین کل بدن" :
-        split === "upper" ? "تمرین بالاتنه" :
-        split === "lower" ? "تمرین پایین‌تنه" :
-        split === "push" ? "تمرین عضلات فشاری" : "تمرین عضلات کششی",
+      title: split === "full"
+        ? "تمرین کل بدن"
+        : split === "upper"
+          ? "تمرین بالاتنه"
+          : split === "lower"
+            ? "تمرین پایین‌تنه"
+            : split === "push"
+              ? "تمرین عضلات فشاری"
+              : "تمرین عضلات کششی",
       duration: settings.duration,
       level: settings.intensity.label,
       exercises: selected.map(exercise => ({
         name: exercise.name,
         muscle: exercise.muscle,
+        category: exercise.muscle,
+        muscles: [exercise.muscle],
         sets,
         reps,
-        rest: settings.age < 18 ? "۶۰ تا ۹۰ ثانیه" : "۶۰ تا ۱۲۰ ثانیه"
+        rest,
+        restLabel: rest + " ثانیه"
       }))
     };
   }
@@ -257,8 +338,15 @@ const ForgePlanGenerator = (() => {
     const goal = getGoal(profile.goal);
     const experience = getExperienceLevel(profile.experience);
 
-    const days = getTrainingDays(training.days || training.trainingDays);
-    const duration = Math.min(60, getNumber(training.duration, 30));
+    const days = getTrainingDays(
+      training.days || training.trainingDays
+    );
+
+    const duration = Math.min(
+      60,
+      getNumber(training.duration, 30)
+    );
+
     const equipment = getEquipment(training);
 
     const recovery = training.recovery || {};
@@ -302,5 +390,7 @@ const ForgePlanGenerator = (() => {
     };
   }
 
-  return { generate };
+  return {
+    generate
+  };
 })();
