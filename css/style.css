@@ -1,19 +1,21 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Vazirmatn:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Vazirmatn:wght@400;500;600;700;800;900&display=swap');
 
 :root {
   --bg: #0B0D18;
   --surface: #15182A;
+  --surface-light: #1D2138;
   --purple: #9878FF;
   --cyan: #00D4FF;
   --text: #F4F4FA;
   --muted: #9296AA;
+  --border: rgba(255,255,255,.08);
 }
 
 * {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
 }
 
 body {
@@ -21,95 +23,249 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: 'Vazirmatn', sans-serif;
-  overflow: hidden;
+  overflow-x: hidden;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+  border: none;
 }
 
 .splash {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   text-align: center;
   padding: 24px;
   background:
-    radial-gradient(circle at 50% 40%,
-    rgba(124, 58, 237, 0.18), transparent 40%),
-    radial-gradient(circle at 80% 20%,
-    rgba(0, 212, 255, 0.07), transparent 35%),
+    radial-gradient(circle at 50% 40%, rgba(124,58,237,.18), transparent 45%),
     var(--bg);
-  animation: fadeIn 1.2s ease;
 }
 
 .logo {
-  width: 100px;
-  height: 100px;
+  width: 82px;
+  height: 82px;
   display: grid;
   place-items: center;
-  border-radius: 30px;
-  background: linear-gradient(145deg, #29204B, #15182A);
-  border: 1px solid rgba(167, 139, 250, 0.3);
-  color: var(--purple);
+  border-radius: 25px;
+  background: linear-gradient(135deg, var(--purple), #5834BD);
+  box-shadow: 0 0 45px rgba(152,120,255,.35);
   font-family: 'Manrope', sans-serif;
-  font-size: 58px;
-  font-weight: 800;
-  box-shadow: 0 0 45px rgba(152, 120, 255, 0.2);
-  animation: logoPulse 2.5s infinite ease-in-out;
+  font-size: 48px;
+  font-weight: 900;
+  font-style: italic;
 }
 
-h1 {
-  margin-top: 25px;
+.splash h1 {
+  margin-top: 22px;
   font-family: 'Manrope', sans-serif;
   font-size: 42px;
-  font-weight: 800;
-  letter-spacing: 5px;
+  font-weight: 900;
+  letter-spacing: 4px;
 }
 
 .splash p {
-  margin-top: 14px;
-  font-size: 15px;
-  color: #D5D6E2;
+  margin-top: 12px;
+  color: var(--text);
+  font-size: 14px;
 }
 
 .splash span {
-  margin-top: 9px;
+  margin-top: 8px;
   color: var(--muted);
   font-size: 12px;
 }
 
 .loader {
-  width: 90px;
-  height: 3px;
-  margin-top: 65px;
-  border-radius: 20px;
-  background: rgba(152, 120, 255, 0.2);
-  overflow: hidden;
+  width: 34px;
+  height: 34px;
+  margin-top: 45px;
+  border: 3px solid rgba(255,255,255,.12);
+  border-top-color: var(--cyan);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Dashboard */
+
+.dashboard {
+  width: 100%;
+  max-width: 600px;
+  min-height: 100vh;
+  margin: auto;
+  padding: 22px 18px 110px;
+  background:
+    radial-gradient(ellipse at 90% 0%, rgba(124,58,237,.12), transparent 35%),
+    var(--bg);
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 900;
+  font-size: 21px;
+  letter-spacing: 2px;
+}
+
+.brand-icon {
+  width: 37px;
+  height: 37px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--purple), #5834BD);
+  font-size: 23px;
+  font-style: italic;
+}
+
+.profile-button {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: var(--surface-light);
+  color: white;
+  font-size: 19px;
+  border: 1px solid var(--border);
+}
+
+.welcome-section {
+  margin-top: 38px;
+}
+
+.welcome-section p {
+  color: var(--cyan);
+  font-size: 13px;
+}
+
+.welcome-section h2 {
+  margin-top: 8px;
+  font-size: 25px;
+  font-weight: 800;
+}
+
+.welcome-section span {
+  display: block;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.setup-card {
   position: relative;
+  overflow: hidden;
+  margin-top: 30px;
+  padding: 25px 21px;
+  border: 1px solid rgba(152,120,255,.24);
+  border-radius: 25px;
+  background: linear-gradient(135deg, #211B3C, #15182A 75%);
 }
 
-.loader::after {
-  content: "";
+.setup-card::after {
+  content: '';
   position: absolute;
-  inset: 0;
-  width: 40%;
-  border-radius: 20px;
-  background: linear-gradient(90deg, var(--purple), var(--cyan));
-  animation: loading 1.5s infinite ease-in-out;
+  width: 150px;
+  height: 150px;
+  left: -55px;
+  top: -65px;
+  border-radius: 50%;
+  background: rgba(0,212,255,.09);
+  filter: blur(5px);
 }
 
-@keyframes loading {
-  from { transform: translateX(-150%); }
-  to { transform: translateX(250%); }
+.setup-icon {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  background: rgba(152,120,255,.17);
+  font-size: 24px;
 }
 
-@keyframes logoPulse {
-  50% {
-    box-shadow: 0 0 65px rgba(152, 120, 255, 0.4);
-    transform: scale(1.04);
+.setup-card h3 {
+  position: relative;
+  margin-top: 20px;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.setup-card p {
+  position: relative;
+  margin-top: 10px;
+  color: #B3B4C6;
+  font-size: 13px;
+  line-height: 2;
+}
+
+.primary-button {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin-top: 22px;
+  padding: 15px;
+  border-radius: 14px;
+  color: white;
+  font-weight: 800;
+  background: linear-gradient(100deg, #7952E8, #9878FF);
+  box-shadow: 0 8px 25px rgba(124,58,237,.22);
+}
+
+.primary-button:active {
+  transform: scale(.98);
+}
+
+.bottom-nav {
+  position: fixed;
+  z-index: 10;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(560px, calc(100% - 24px));
+  display: flex;
+  justify-content: space-around;
+  padding: 13px 8px;
+  border: 1px solid var(--border);
+  border-radius: 21px;
+  background: rgba(21,24,42,.94);
+  backdrop-filter: blur(18px);
+}
+
+.bottom-nav button {
+  padding: 7px 10px;
+  color: var(--muted);
+  background: transparent;
+  font-size: 12px;
+}
+
+.bottom-nav button.active {
+  color: var(--cyan);
+  font-weight: 800;
+}
+
+@media (max-width: 380px) {
+  .welcome-section h2 {
+    font-size: 22px;
   }
-}
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  .setup-card {
+    padding: 21px 17px;
+  }
 }
