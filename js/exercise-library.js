@@ -18,36 +18,36 @@ const ForgeExerciseLibrary = (() => {
       safety: "در محدوده حرکتی بدون درد اجرا کن."
     },
     {
-      id: "wall-pushup",
-      name: "شنا روی دیوار",
-      category: "سینه",
-      muscles: ["سینه", "پشت بازو", "سرشانه"],
-      equipment: "دیوار",
-      level: "مبتدی",
+      id: "backpack-squat",
+      name: "اسکوات با کوله‌پشتی",
+      category: "پا",
+      muscles: ["چهارسر ران", "باسن"],
+      equipment: "کوله‌پشتی سبک",
+      level: "متوسط",
       instructions: [
-        "روبه‌روی دیوار بایست و دست‌ها را روی آن قرار بده.",
-        "بدن را صاف نگه دار.",
-        "آرنج‌ها را خم کن و سینه را به دیوار نزدیک کن.",
-        "با کنترل به نقطه شروع برگرد."
+        "کوله‌پشتی سبک و محکم را روی پشت قرار بده.",
+        "پاها را به اندازه عرض شانه باز کن.",
+        "باسن را به سمت عقب و پایین ببر.",
+        "با کنترل به حالت ایستاده برگرد."
       ],
-      mistakes: ["قوس دادن کمر", "باز کردن بیش از حد آرنج‌ها"],
-      safety: "فاصله پاها را طوری تنظیم کن که حرکت راحت باشد."
+      mistakes: ["خم شدن کمر", "جمع شدن زانوها به داخل"],
+      safety: "فقط از کوله محکم و وزن سبک استفاده کن."
     },
     {
-      id: "incline-pushup",
-      name: "شنا روی سطح بلند",
-      category: "سینه",
-      muscles: ["سینه", "پشت بازو", "سرشانه"],
-      equipment: "سطح محکم و ثابت",
+      id: "stationary-lunge",
+      name: "لانج درجا",
+      category: "پا",
+      muscles: ["چهارسر ران", "باسن"],
+      equipment: "بدون تجهیزات",
       level: "مبتدی",
       instructions: [
-        "دست‌ها را روی سطحی محکم و بلندتر از زمین بگذار.",
-        "بدن را از سر تا پاشنه در یک راستا نگه دار.",
-        "سینه را با خم کردن آرنج‌ها به سطح نزدیک کن.",
-        "دوباره دست‌ها را صاف کن."
+        "یک پا را جلو و پای دیگر را عقب قرار بده.",
+        "بدن را صاف نگه دار.",
+        "هر دو زانو را به‌آرامی خم کن.",
+        "با فشار پای جلو به حالت شروع برگرد."
       ],
-      mistakes: ["افتادن لگن", "نیمه‌کاره انجام دادن حرکت"],
-      safety: "از میز یا سطحی استفاده کن که سر نخورد."
+      mistakes: ["از دست دادن تعادل", "خم شدن بیش از حد بدن"],
+      safety: "در صورت نیاز کنار دیوار تمرین کن و حرکت را بدون درد انجام بده."
     },
     {
       id: "glute-bridge",
@@ -79,39 +79,71 @@ const ForgeExerciseLibrary = (() => {
         "پاشنه‌ها را آرام پایین بیاور."
       ],
       mistakes: ["تاب دادن بدن", "پایین آمدن ناگهانی"],
-      safety: "در صورت نیاز برای حفظ تعادل از دیوار کمک بگیر."
+      safety: "برای حفظ تعادل می‌توانی از دیوار کمک بگیری."
     },
     {
-      id: "reverse-lunge",
-      name: "لانج معکوس",
-      category: "پا",
-      muscles: ["چهارسر ران", "باسن"],
-      equipment: "بدون تجهیزات",
-      level: "متوسط",
-      instructions: [
-        "صاف بایست.",
-        "یک پا را به عقب ببر.",
-        "هر دو زانو را به‌آرامی خم کن.",
-        "به نقطه شروع برگرد و پا را عوض کن."
-      ],
-      mistakes: ["از دست دادن تعادل", "قدم خیلی کوتاه"],
-      safety: "در صورت درد زانو حرکت را متوقف کن."
-    },
-    {
-      id: "bottle-curl",
-      name: "جلو بازو با بطری",
-      category: "جلو بازو",
-      muscles: ["جلو بازو"],
-      equipment: "بطری آب",
+      id: "wall-pushup",
+      name: "شنا روی دیوار",
+      category: "سینه",
+      muscles: ["سینه", "پشت بازو", "سرشانه"],
+      equipment: "دیوار",
       level: "مبتدی",
       instructions: [
-        "در هر دست یک بطری سبک بگیر.",
-        "آرنج‌ها را نزدیک بدن نگه دار.",
-        "بطری‌ها را به سمت شانه بالا بیاور.",
-        "با کنترل پایین ببر."
+        "روبه‌روی دیوار بایست و دست‌ها را روی آن قرار بده.",
+        "بدن را صاف نگه دار.",
+        "آرنج‌ها را خم کن و سینه را به دیوار نزدیک کن.",
+        "با کنترل به نقطه شروع برگرد."
       ],
-      mistakes: ["تاب دادن بدن", "حرکت دادن آرنج‌ها"],
-      safety: "با بطری سبک شروع کن."
+      mistakes: ["قوس دادن کمر", "باز کردن بیش از حد آرنج‌ها"],
+      safety: "فاصله پاها را طوری تنظیم کن که حرکت راحت باشد."
+    },
+    {
+      id: "incline-pushup",
+      name: "شنا روی سطح بلند",
+      category: "سینه",
+      muscles: ["سینه", "پشت بازو", "سرشانه"],
+      equipment: "سطح محکم و ثابت",
+      level: "مبتدی",
+      instructions: [
+        "دست‌ها را روی سطحی محکم و ثابت قرار بده.",
+        "بدن را از سر تا پاشنه در یک راستا نگه دار.",
+        "سینه را با خم کردن آرنج‌ها به سطح نزدیک کن.",
+        "دوباره دست‌ها را صاف کن."
+      ],
+      mistakes: ["افتادن لگن", "استفاده از سطح ناپایدار"],
+      safety: "از میز یا سطحی استفاده کن که سر نخورد."
+    },
+    {
+      id: "dumbbell-chest-press",
+      name: "پرس سینه با دمبل",
+      category: "سینه",
+      muscles: ["سینه", "پشت بازو", "سرشانه"],
+      equipment: "دمبل",
+      level: "متوسط",
+      instructions: [
+        "به پشت روی سطح صاف و محکم دراز بکش.",
+        "دمبل‌های سبک را بالای سینه نگه دار.",
+        "آرنج‌ها را به‌آرامی خم کن و پایین بیاور.",
+        "دمبل‌ها را با کنترل بالا ببر."
+      ],
+      mistakes: ["قفل کردن شدید آرنج‌ها", "پایین آوردن بیش از حد دمبل"],
+      safety: "فقط با وزنه قابل‌کنترل و سطح پایدار اجرا کن."
+    },
+    {
+      id: "dumbbell-shoulder-press",
+      name: "پرس سرشانه با دمبل",
+      category: "سرشانه",
+      muscles: ["سرشانه", "پشت بازو"],
+      equipment: "دمبل",
+      level: "متوسط",
+      instructions: [
+        "صاف بنشین یا بایست.",
+        "دمبل‌های سبک را کنار شانه‌ها نگه دار.",
+        "دمبل‌ها را با کنترل به سمت بالا ببر.",
+        "آرام به نقطه شروع برگرد."
+      ],
+      mistakes: ["قوس دادن کمر", "بالا بردن وزنه با تاب بدن"],
+      safety: "با وزنه سبک و دامنه حرکتی راحت شروع کن."
     },
     {
       id: "lateral-raise",
@@ -130,8 +162,8 @@ const ForgeExerciseLibrary = (() => {
       safety: "در محدوده حرکتی راحت شانه تمرین کن."
     },
     {
-      id: "overhead-triceps",
-      name: "پشت بازو بالای سر",
+      id: "bottle-triceps",
+      name: "پشت بازو با بطری",
       category: "پشت بازو",
       muscles: ["پشت بازو"],
       equipment: "بطری آب",
@@ -142,8 +174,56 @@ const ForgeExerciseLibrary = (() => {
         "آرنج‌ها را خم کن و بطری را پشت سر پایین ببر.",
         "آرنج‌ها را آرام صاف کن."
       ],
-      mistakes: ["باز شدن زیاد آرنج‌ها", "قوس دادن کمر"],
-      safety: "با وزنه سبک و دامنه راحت شروع کن."
+      mistakes: ["باز شدن بیش از حد آرنج‌ها", "قوس دادن کمر"],
+      safety: "با بطری سبک و دامنه حرکتی راحت شروع کن."
+    },
+    {
+      id: "bottle-curl",
+      name: "جلو بازو با بطری",
+      category: "جلو بازو",
+      muscles: ["جلو بازو"],
+      equipment: "بطری آب",
+      level: "مبتدی",
+      instructions: [
+        "در هر دست یک بطری سبک بگیر.",
+        "آرنج‌ها را نزدیک بدن نگه دار.",
+        "بطری‌ها را به سمت شانه بالا بیاور.",
+        "با کنترل پایین ببر."
+      ],
+      mistakes: ["تاب دادن بدن", "حرکت دادن آرنج‌ها"],
+      safety: "با بطری سبک شروع کن."
+    },
+    {
+      id: "dumbbell-curl",
+      name: "جلو بازو با دمبل",
+      category: "جلو بازو",
+      muscles: ["جلو بازو"],
+      equipment: "دمبل",
+      level: "متوسط",
+      instructions: [
+        "صاف بایست و دمبل‌های سبک را کنار بدن نگه دار.",
+        "آرنج‌ها را نزدیک پهلو ثابت نگه دار.",
+        "دمبل‌ها را به سمت شانه بالا بیاور.",
+        "آرام و کنترل‌شده پایین ببر."
+      ],
+      mistakes: ["تاب دادن بدن", "جلو بردن آرنج‌ها"],
+      safety: "وزنه‌ای انتخاب کن که بتوانی حرکت را بدون تاب دادن انجام بدهی."
+    },
+    {
+      id: "band-row",
+      name: "قایقی با کش",
+      category: "پشت",
+      muscles: ["عضلات پشت", "پشت شانه"],
+      equipment: "کش ورزشی",
+      level: "متوسط",
+      instructions: [
+        "روی زمین بنشین و پاها را روبه‌رو قرار بده.",
+        "کش سالم و مناسب را دور کف پاها قرار بده.",
+        "دسته‌های کش را به سمت شکم بکش.",
+        "آرام دست‌ها را به جلو برگردان."
+      ],
+      mistakes: ["گرد کردن کمر", "کشیدن ناگهانی کش"],
+      safety: "کش را از نظر پارگی بررسی کن و آن را محکم مهار کن."
     },
     {
       id: "bent-over-row",
@@ -162,6 +242,22 @@ const ForgeExerciseLibrary = (() => {
       safety: "کوله را محکم ببند و وزن کمی انتخاب کن."
     },
     {
+      id: "scapular-retraction",
+      name: "جمع کردن کتف‌ها",
+      category: "پشت",
+      muscles: ["عضلات بین کتف‌ها", "پشت شانه"],
+      equipment: "بدون تجهیزات",
+      level: "مبتدی",
+      instructions: [
+        "صاف بایست و دست‌ها را کنار بدن قرار بده.",
+        "شانه‌ها را آرام به سمت عقب ببر.",
+        "کتف‌ها را بدون بالا انداختن شانه‌ها به هم نزدیک کن.",
+        "چند لحظه مکث کن و رها کن."
+      ],
+      mistakes: ["بالا انداختن شانه‌ها", "قوس دادن بیش از حد کمر"],
+      safety: "حرکت را آرام و بدون درد انجام بده."
+    },
+    {
       id: "dead-bug",
       name: "ددباگ",
       category: "شکم",
@@ -170,7 +266,7 @@ const ForgeExerciseLibrary = (() => {
       level: "مبتدی",
       instructions: [
         "به پشت دراز بکش و دست‌ها را بالا ببر.",
-        "زانوها را در زاویه مناسب خم کن.",
+        "زانوها را خم کن.",
         "دست و پای مخالف را آرام دور کن.",
         "به حالت شروع برگرد و سمت دیگر را انجام بده."
       ],
@@ -199,7 +295,7 @@ const ForgeExerciseLibrary = (() => {
       category: "شکم",
       muscles: ["شکم", "عضلات مرکزی"],
       equipment: "بدون تجهیزات",
-      level: "متوسط",
+      level: "مبتدی",
       instructions: [
         "ساعدها را روی زمین قرار بده.",
         "بدن را در یک خط مستقیم نگه دار.",
@@ -244,11 +340,29 @@ const ForgeExerciseLibrary = (() => {
   ];
 
   function getAll() {
-    return [...exercises];
+    return exercises.map(exercise => ({
+      ...exercise,
+      muscles: [...exercise.muscles],
+      instructions: [...exercise.instructions],
+      mistakes: [...exercise.mistakes]
+    }));
   }
 
   function getById(id) {
-    return exercises.find(exercise => exercise.id === id) || null;
+    const exercise = exercises.find(item => item.id === id);
+    if (!exercise) return null;
+
+    return {
+      ...exercise,
+      muscles: [...exercise.muscles],
+      instructions: [...exercise.instructions],
+      mistakes: [...exercise.mistakes]
+    };
+  }
+
+  function getByName(name) {
+    const term = String(name ?? "").trim();
+    return exercises.find(exercise => exercise.name === term) || null;
   }
 
   function search(query = "") {
@@ -256,22 +370,30 @@ const ForgeExerciseLibrary = (() => {
 
     if (!term) return getAll();
 
-    return exercises.filter(exercise => {
-      const searchable = [
-        exercise.name,
-        exercise.category,
-        ...exercise.muscles,
-        exercise.equipment,
-        exercise.level
-      ].join(" ").toLowerCase();
+    return exercises
+      .filter(exercise => {
+        const searchable = [
+          exercise.name,
+          exercise.category,
+          ...exercise.muscles,
+          exercise.equipment,
+          exercise.level
+        ].join(" ").toLowerCase();
 
-      return searchable.includes(term);
-    });
+        return searchable.includes(term);
+      })
+      .map(exercise => ({
+        ...exercise,
+        muscles: [...exercise.muscles],
+        instructions: [...exercise.instructions],
+        mistakes: [...exercise.mistakes]
+      }));
   }
 
   return {
     getAll,
     getById,
+    getByName,
     search
   };
 })();
