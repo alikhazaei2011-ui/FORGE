@@ -373,3 +373,119 @@ button {
   font-size: 12px;
   white-space: nowrap;
 }
+
+/* FORGE Exercise Library */
+
+.exercise-search {
+  width: 100%;
+  padding: 16px;
+  margin: 22px 0;
+  border: 1px solid rgba(152, 120, 255, 0.3);
+  border-radius: 16px;
+  background: #15182A;
+  color: #F4F4FA;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+}
+
+.exercise-search:focus {
+  border-color: #9878FF;
+  box-shadow: 0 0 18px rgba(152, 120, 255, 0.12);
+}
+
+.exercise-categories {
+  display: flex;
+  gap: 9px;
+  overflow-x: auto;
+  padding: 4px 0 14px;
+  scrollbar-width: none;
+}
+
+.exercise-categories::-webkit-scrollbar {
+  display: none;
+}
+
+.category-btn {
+  flex-shrink: 0;
+  padding: 10px 17px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 30px;
+  background: #15182A;
+  color: #9296AA;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.category-btn.active {
+  background: rgba(152,120,255,.16);
+  color: #B9A5FF;
+  border-color: #9878FF;
+}
+
+.exercise-list {
+  display: grid;
+  gap: 12px;
+  margin: 12px 0 100px;
+}
+
+.exercise-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 17px;
+  text-align: right;
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 18px;
+  background: #15182A;
+  color: #F4F4FA;
+  font-family: inherit;
+  cursor: pointer;
+  transition: .2s ease;
+}
+
+.exercise-card:active {
+  transform: scale(.98);
+  border-color: #9878FF;
+}
+
+.exercise-card-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 14px;
+  background: rgba(152,120,255,.14);
+  font-size: 23px;
+}
+
+.exercise-card strong {
+  font-size: 14px;
+}
+
+.exercise-card p {
+  margin-top: 6px;
+  color: #9296AA;
+  font-size: 12px;
+}
+
+.exercise-card > span {
+  margin-right: auto;
+  color: #00D4FF;
+  font-size: 19px;
+}
+
+.empty-exercises {
+  padding: 25px;
+  text-align: center;
+  color: #9296AA;
+}
+
+.guide-step {
+  margin-top: 13px;
+  line-height: 2;
+  color: #C5C6D3;
+  font-size: 13px;
+}
