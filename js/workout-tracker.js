@@ -1,208 +1,333 @@
 
+/* =========================================
+   FORGE - Workout Tracking System
+   ========================================= */
+
 const ForgeWorkoutTracker = (() => {
   const STORAGE_KEY = "forge_workout_history";
 
-  function getHistory() {
+  function createId() {
+    return "workout_" + Date.now() + "_" +
+      Math.random().toString(36).slice(2, 8);
+  }
+
+  function loadHistory() {
     try {
-      const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      const data = JSON.parse(localStorage.getItem(STORAGE_KEY));
       return Array.isArray(data) ? data : [];
-    } catch {
+    } catch (error) {
+      console.error("FORGE: Could not load workout history", error);
       return [];
     }
   }
 
   function saveHistory(history) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+      return true;
+    } catch (error) {
+      console.error("FORGE: Could not save workout history", error);
+      return false;
+    }
   }
 
-  function createId() {
-    return Date.now() + Math.floor(Math.random() * 10000);
+  function normalizeExercise(exercise, index) {
+    const sets = Math.max(1, Number(exercise.sets) || 3);
+    const completedSets = Number(exercise.completedSets) || 0;
+
+    return {
+      id: exercise.id || "exercise_" + index + "_" + Date.now(),
+      name: exercise.name || "حرکت تمرینی",
+      category: exercise.category || "",
+      muscles: exercise.muscles || [],
+      instructions: exercise.instructions || "",
+      mistakes: exercise.mistakes || [],
+      safety: exercise.safety || "",
+      equipment: exercise.equipment || [],
+      reps: exercise.reps || 10,
+      sets,
+      rest: Number(exercise.rest) || 60,
+      weight: Number(exercise.weight) || 0,
+      actualReps: Number(exercise.actualReps) || 0,
+      completedSets,
+      completed: Boolean(exercise.completed),
+      notes: exercise.notes || "",
+      setLogs: Array.from({ length: sets }, (_, i) => {
+        const oldLog = exercise.setLogs?.[i];
+
+        return {
+          setNumber: i + 1,
+          reps: Number(oldLog?.reps) || 0,
+          weight: Number(oldLog?.weight) || 0,
+          completed: Boolean(oldLog?.completed)
+        };
+      })
+    };
   }
 
-  function completeSession(session) {
-    if (!session || !Array.isArray(session.exercises)) return null;
+  function getHistory() {
+    return loadHistory();
+  }
 
-    const history = getHistory();
+  function findSession(history, recordId) {
+    return history.find(item => item.id === recordId);
+  }
 
-    const record = {
+  function completeSession(planSession) {
+    const history = loadHistory();
+
+    const session = {
       id: createId(),
-      title: session.title || "جلسه تمرینی",
-      day: session.day || "",
+      title: planSession?.title || "جلسه تمرینی FORGE",
+      day: planSession?.day || "",
       date: new Date().toISOString(),
-      status: "in_progress",
+      startedAt: new Date().toISOString(),
       finishedAt: null,
-      exercises: session.exercises.map(exercise => ({
-        name: exercise.name || "حرکت بدون نام",
-        muscle: exercise.muscle || "",
-        sets: Number(exercise.sets) || 2,
-        reps: exercise.reps || "10 تا 12",
-        rest: exercise.rest || "۶۰ ثانیه",
-        completed: false,
-        completedSets: 0,
-        actualReps: [],
-        weight: 0,
-        notes: ""
-      }))
+      status: "in-progress",
+      duration: 0,
+      exercises: (planSession?.exercises || []).map(
+        normalizeExercise
+      )
     };
 
-    history.push(record);
+    history.unshift(session);
     saveHistory(history);
 
-    return record;
+    return session;
   }
 
-  function findRecord(history, recordId) {
-    return history.find(item => String(item.id) === String(recordId));
+  function updateExercise(recordId, exerciseId, updates = {}) {
+    const history = loadHistory();
+    const session = findSession(history, recordId);
+
+    if (!session) return false;
+
+    const exercise = session.exercises.find(
+      item => item.id === exerciseId
+    );
+
+    if (!exercise) return false;
+
+    const allowed = [
+      "actualReps",
+      "weight",
+      "notes",
+      "completedSets",
+      "completed"
+    ];
+
+    allowed.forEach(key => {
+      if (Object.prototype.hasOwnProperty.call(updates, key)) {
+        exercise[key] = updates[key];
+      }
+    });
+
+    if (exercise.completedSets >= exercise.sets) {
+      exercise.completed = true;
+    }
+
+    return saveHistory(history);
   }
 
-  function toggleExercise(recordId, exerciseIndex) {
-    const history = getHistory();
-    const record = findRecord(history, recordId);
+  function updateSet(recordId, exerciseId, setIndex, updates = {}) {
+    const history = loadHistory();
+    const session = findSession(history, recordId);
 
-    if (!record || !record.exercises[exerciseIndex]) return null;
+    if (!session) return false;
 
-    const exercise = record.exercises[exerciseIndex];
+    const exercise = session.exercises.find(
+      item => item.id === exerciseId
+    );
+
+    if (!exercise || !exercise.setLogs[setIndex]) return false;
+
+    const set = exercise.setLogs[setIndex];
+
+    if (Object.prototype.hasOwnProperty.call(updates, "reps")) {
+      set.reps = Math.max(0, Number(updates.reps) || 0);
+    }
+
+    if (Object.prototype.hasOwnProperty.call(updates, "weight")) {
+      set.weight = Math.max(0, Number(updates.weight) || 0);
+    }
+
+    if (Object.prototype.hasOwnProperty.call(updates, "completed")) {
+      set.completed = Boolean(updates.completed);
+    }
+
+    exercise.completedSets = exercise.setLogs.filter(
+      item => item.completed
+    ).length;
+
+    exercise.completed = exercise.completedSets === exercise.sets;
+
+    const completedReps = exercise.setLogs
+      .filter(item => item.completed)
+      .reduce((total, item) => total + item.reps, 0);
+
+    exercise.actualReps = completedReps;
+
+    return saveHistory(history);
+  }
+
+  function toggleSet(recordId, exerciseId, setIndex) {
+    const history = loadHistory();
+    const session = findSession(history, recordId);
+
+    if (!session) return false;
+
+    const exercise = session.exercises.find(
+      item => item.id === exerciseId
+    );
+
+    if (!exercise || !exercise.setLogs[setIndex]) return false;
+
+    return updateSet(recordId, exerciseId, setIndex, {
+      completed: !exercise.setLogs[setIndex].completed
+    });
+  }
+
+  function toggleExercise(recordId, exerciseId) {
+    const history = loadHistory();
+    const session = findSession(history, recordId);
+
+    if (!session) return false;
+
+    const exercise = session.exercises.find(
+      item => item.id === exerciseId
+    );
+
+    if (!exercise) return false;
+
     exercise.completed = !exercise.completed;
+
+    exercise.setLogs.forEach(set => {
+      set.completed = exercise.completed;
+    });
+
     exercise.completedSets = exercise.completed
       ? exercise.sets
       : 0;
 
-    saveHistory(history);
-    return record;
-  }
-
-  function updateExercise(recordId, exerciseIndex, updates = {}) {
-    const history = getHistory();
-    const record = findRecord(history, recordId);
-
-    if (!record || !record.exercises[exerciseIndex]) return null;
-
-    const exercise = record.exercises[exerciseIndex];
-
-    if (updates.completedSets !== undefined) {
-      exercise.completedSets = Math.max(
-        0,
-        Math.min(exercise.sets, Number(updates.completedSets) || 0)
-      );
-
-      exercise.completed = exercise.completedSets >= exercise.sets;
-    }
-
-    if (updates.weight !== undefined) {
-      exercise.weight = Math.max(0, Number(updates.weight) || 0);
-    }
-
-    if (updates.actualReps !== undefined && Array.isArray(updates.actualReps)) {
-      exercise.actualReps = updates.actualReps.map(value =>
-        Math.max(0, Number(value) || 0)
-      );
-    }
-
-    if (updates.notes !== undefined) {
-      exercise.notes = String(updates.notes).slice(0, 500);
-    }
-
-    saveHistory(history);
-    return record;
+    return saveHistory(history);
   }
 
   function finishSession(recordId) {
-    const history = getHistory();
-    const record = findRecord(history, recordId);
+    const history = loadHistory();
+    const session = findSession(history, recordId);
 
-    if (!record) return null;
+    if (!session) return false;
 
-    record.status = "completed";
-    record.finishedAt = new Date().toISOString();
+    session.status = "completed";
+    session.finishedAt = new Date().toISOString();
 
-    saveHistory(history);
-    return record;
+    const start = new Date(session.startedAt).getTime();
+    const end = new Date(session.finishedAt).getTime();
+
+    session.duration = Math.max(
+      0,
+      Math.round((end - start) / 60000)
+    );
+
+    return saveHistory(history);
   }
 
   function deleteSession(recordId) {
-    const history = getHistory();
-    const updated = history.filter(
-      item => String(item.id) !== String(recordId)
+    const history = loadHistory().filter(
+      item => item.id !== recordId
     );
 
-    if (updated.length === history.length) return false;
-
-    saveHistory(updated);
-    return true;
+    return saveHistory(history);
   }
 
   function getStats() {
-    const history = getHistory();
-
+    const history = loadHistory();
     const completedSessions = history.filter(
-      session => session.status === "completed"
+      item => item.status === "completed"
     );
 
-    const completedExercises = history.reduce((total, session) => {
-      return total + session.exercises.filter(
-        exercise => exercise.completed
-      ).length;
-    }, 0);
+    const allExercises = history.flatMap(
+      item => item.exercises || []
+    );
 
-    const totalExercises = history.reduce((total, session) => {
-      return total + session.exercises.length;
-    }, 0);
+    const completedExercises = allExercises.filter(
+      item => item.completed
+    );
 
-    const completedSets = history.reduce((total, session) => {
-      return total + session.exercises.reduce(
-        (sum, exercise) => sum + (Number(exercise.completedSets) || 0),
-        0
-      );
-    }, 0);
+    const totalSets = allExercises.reduce(
+      (sum, item) => sum + item.sets,
+      0
+    );
+
+    const completedSets = allExercises.reduce(
+      (sum, item) => sum + item.completedSets,
+      0
+    );
 
     return {
       totalSessions: history.length,
       completedSessions: completedSessions.length,
-      completedExercises,
-      totalExercises,
+      completedExercises: completedExercises.length,
+      totalExercises: allExercises.length,
+      totalSets,
       completedSets,
-      completionRate: totalExercises
-        ? Math.round(completedExercises / totalExercises * 100)
-        : 0
+      completionRate: totalSets
+        ? Math.round((completedSets / totalSets) * 100)
+        : 0,
+      totalMinutes: completedSessions.reduce(
+        (sum, item) => sum + (item.duration || 0),
+        0
+      )
     };
   }
 
-  function getRecentSessions(limit = 7) {
-    return getHistory()
-      .slice()
-      .sort((a, b) => new Date(b.date) - new Date(a.date))
-      .slice(0, Math.max(1, Number(limit) || 7));
+  function getRecentSessions(limit = 5) {
+    return loadHistory().slice(0, limit);
   }
 
   function getExerciseProgress(exerciseName) {
-    const history = getHistory();
-    const results = [];
+    const history = loadHistory();
+    const records = [];
 
     history.forEach(session => {
       session.exercises.forEach(exercise => {
         if (exercise.name === exerciseName) {
-          results.push({
+          records.push({
             date: session.date,
-            weight: Number(exercise.weight) || 0,
-            completedSets: Number(exercise.completedSets) || 0,
-            completed: Boolean(exercise.completed)
+            weight: exercise.weight || 0,
+            reps: exercise.actualReps || 0,
+            completedSets: exercise.completedSets || 0
           });
         }
       });
     });
 
-    return results.sort((a, b) => new Date(a.date) - new Date(b.date));
+    return records.reverse();
+  }
+
+  function getSession(recordId) {
+    return loadHistory().find(
+      item => item.id === recordId
+    ) || null;
+  }
+
+  function clearHistory() {
+    localStorage.removeItem(STORAGE_KEY);
   }
 
   return {
     getHistory,
+    getSession,
     completeSession,
-    toggleExercise,
     updateExercise,
+    updateSet,
+    toggleSet,
+    toggleExercise,
     finishSession,
     deleteSession,
     getStats,
     getRecentSessions,
-    getExerciseProgress
+    getExerciseProgress,
+    clearHistory
   };
 })();
