@@ -312,3 +312,32 @@ button {
 .assessment-form .primary-button {
   margin-top: 22px;
 }
+
+.exercise-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.exercise-row:last-child {
+  border-bottom: none;
+}
+
+.exercise-row strong {
+  font-size: 14px;
+}
+
+.exercise-row p {
+  margin-top: 5px;
+  color: #9296AA;
+  font-size: 12px;
+}
+
+.exercise-row > span {
+  color: #00D4FF;
+  font-size: 12px;
+  white-space: nowrap;
+}
