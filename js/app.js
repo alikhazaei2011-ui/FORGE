@@ -104,7 +104,7 @@ function showTrainingAssessment() {
       <section class="welcome-section">
         <p>مرحله ۲ از ۲</p>
         <h2>چطور تمرین می‌کنی؟</h2>
-        <span>شرایط تمرینت رو مشخص کن تا برنامه مناسب‌تری بسازیم.</span>
+        <span>شرایط تمرینت رو مشخص کن.</span>
       </section>
 
       <form id="trainingForm" class="assessment-form">
@@ -124,7 +124,7 @@ function showTrainingAssessment() {
           <option value="full">تجهیزات کامل باشگاهی</option>
         </select>
 
-        <label>چند روز در هفته می‌تونی تمرین کنی؟</label>
+        <label>روزهای تمرین در هفته</label>
         <select name="days" required>
           <option value="">انتخاب تعداد روز</option>
           <option value="2">۲ روز</option>
@@ -144,7 +144,7 @@ function showTrainingAssessment() {
           <option value="90">۹۰ دقیقه</option>
         </select>
 
-        <label>محدودیت یا آسیب‌دیدگی داری؟</label>
+        <label>محدودیت یا آسیب‌دیدگی</label>
         <select name="limitations" required>
           <option value="">انتخاب پاسخ</option>
           <option value="none">خیر</option>
@@ -170,14 +170,72 @@ function showTrainingAssessment() {
 }
 
 function showAssessmentComplete() {
-  document.getElementById("app").innerHTML = `
+  const profile = JSON.parse(localStorage.getItem("forge_profile") || "null");
+  const training = JSON.parse(localStorage.getItem("forge_training") || "null");
+
+  if (!profile || !training) {
+    alert("اطلاعات ارزیابی کامل نیست.");
+    showDashboard();
+    return;
+  }
+
+  if (typeof ForgePlanGenerator === "undefined") {
+    alert("موتور برنامه‌ساز بارگذاری نشده است. فایل index.html را بررسی کن.");
+    return;
+  }
+
+  try {
+    const plan = ForgePlanGenerator.generate(profile, training);
+    localStorage.setItem("forge_plan", JSON.stringify(plan));
+    showWorkoutPlan(plan);
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+function showWorkoutPlan(plan) {
+  const app = document.getElementById("app");
+
+  const sessionsHTML = plan.sessions.map(session => `
+    <section class="setup-card">
+      <p style="color:#00D4FF">جلسه ${session.day}</p>
+      <h3>${session.title}</h3>
+      <p>زمان پیشنهادی: ${session.duration} دقیقه</p>
+      <p>سطح: ${session.level}</p>
+
+      ${session.exercises.map(exercise => `
+        <div class="exercise-row">
+          <div>
+            <strong>${exercise.name}</strong>
+            <p>${exercise.muscle}</p>
+          </div>
+          <span>${exercise.sets} ست × ${exercise.reps}</span>
+        </div>
+      `).join("")}
+    </section>
+  `).join("");
+
+  app.innerHTML = `
     <main class="dashboard">
-      <section class="setup-card">
-        <div class="setup-icon">✓</div>
-        <h3>ارزیابی اولیه تکمیل شد!</h3>
-        <p>اطلاعاتت ذخیره شد. حالا می‌تونیم وارد مرحله طراحی برنامه اختصاصی بشیم.</p>
-        <button class="primary-button" onclick="showDashboard()">بازگشت به خانه</button>
+      <header class="app-header">
+        <div class="brand">
+          <span class="brand-icon">F</span>
+          <span>FORGE</span>
+        </div>
+        <button class="profile-button" onclick="showDashboard()">⌂</button>
+      </header>
+
+      <section class="welcome-section">
+        <p>برنامه اختصاصی تو</p>
+        <h2>مسیر قوی‌تر شدن شروع شد!</h2>
+        <span>برنامه اولیه بر اساس اطلاعات ارزیابی تو ساخته شده.</span>
       </section>
+
+      <div style="margin-top:25px">
+        ${sessionsHTML}
+      </div>
+
+      <button class="primary-button" onclick="showDashboard()">بازگشت به خانه</button>
     </main>
   `;
 }
