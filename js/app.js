@@ -25,10 +25,10 @@ function showDashboard() {
       </section>
 
       <nav class="bottom-nav">
-        <button class="active">خانه</button>
-        <button>تمرین</button>
-        <button>پیشرفت</button>
-        <button>پروفایل</button>
+        <button class="active" onclick="showDashboard()">خانه</button>
+        <button onclick="showExerciseLibrary()">کتابخانه</button>
+        <button onclick="alert('بخش پیشرفت به‌زودی اضافه می‌شود')">پیشرفت</button>
+        <button onclick="alert('بخش پروفایل به‌زودی اضافه می‌شود')">پروفایل</button>
       </nav>
     </main>
   `;
@@ -241,6 +241,11 @@ function showWorkoutPlan(plan) {
 }
 
 function showExerciseLibrary() {
+  if (typeof ForgeExerciseLibrary === "undefined") {
+    alert("کتابخانه حرکات بارگذاری نشده است. فایل index.html را بررسی کن.");
+    return;
+  }
+
   const app = document.getElementById("app");
 
   app.innerHTML = `
@@ -277,6 +282,13 @@ function showExerciseLibrary() {
       </div>
 
       <div id="exerciseList" class="exercise-list"></div>
+
+      <nav class="bottom-nav">
+        <button onclick="showDashboard()">خانه</button>
+        <button class="active" onclick="showExerciseLibrary()">کتابخانه</button>
+        <button onclick="alert('بخش پیشرفت به‌زودی اضافه می‌شود')">پیشرفت</button>
+        <button onclick="alert('بخش پروفایل به‌زودی اضافه می‌شود')">پروفایل</button>
+      </nav>
     </main>
   `;
 
