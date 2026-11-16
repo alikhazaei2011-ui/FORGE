@@ -1,28 +1,14 @@
 
-const FORGE = {
-  name: "FORGE",
-  version: "1.0.0"
-};
-
 document.addEventListener("DOMContentLoaded", () => {
-  startApp();
+  setTimeout(showDashboard, 3000);
 });
 
-function startApp() {
-  setTimeout(showDashboard, 3000);
-}
-
 function showDashboard() {
-  const app = document.getElementById("app");
-
-  app.innerHTML = `
+  document.getElementById("app").innerHTML = `
     <main class="dashboard">
       <header class="app-header">
-        <div class="brand">
-          <span class="brand-icon">F</span>
-          <span>FORGE</span>
-        </div>
-        <button class="profile-button" aria-label="پروفایل">👤</button>
+        <div class="brand"><span class="brand-icon">F</span><span>FORGE</span></div>
+        <button class="profile-button">👤</button>
       </header>
 
       <section class="welcome-section">
@@ -35,9 +21,7 @@ function showDashboard() {
         <div class="setup-icon">⚡</div>
         <h3>برنامه تمرینی اختصاصی خودت رو بساز</h3>
         <p>با ارزیابی هوشمند، برنامه‌ای متناسب با شرایط و هدف خودت دریافت کن.</p>
-        <button class="primary-button" id="startAssessment">
-          شروع ارزیابی <span>←</span>
-        </button>
+        <button class="primary-button" id="startAssessment">شروع ارزیابی ←</button>
       </section>
 
       <nav class="bottom-nav">
@@ -49,76 +33,151 @@ function showDashboard() {
     </main>
   `;
 
-  document
-    .getElementById("startAssessment")
-    .addEventListener("click", showAssessment);
+  document.getElementById("startAssessment").onclick = showAssessment;
 }
 
 function showAssessment() {
-  const app = document.getElementById("app");
-
-  app.innerHTML = `
+  document.getElementById("app").innerHTML = `
     <main class="dashboard">
       <header class="app-header">
         <button class="profile-button" id="backHome">→</button>
-        <div class="brand">
-          <span class="brand-icon">F</span>
-          <span>FORGE</span>
-        </div>
+        <div class="brand"><span class="brand-icon">F</span><span>FORGE</span></div>
       </header>
 
       <section class="welcome-section">
-        <p>مرحله ۱ از ارزیابی</p>
+        <p>مرحله ۱ از ۲</p>
         <h2>اول خودت رو بشناسیم</h2>
-        <span>اطلاعات اولیه‌ات رو وارد کن تا برنامه مناسب‌تری طراحی کنیم.</span>
+        <span>اطلاعات اولیه‌ات رو وارد کن.</span>
       </section>
 
       <form id="assessmentForm" class="assessment-form">
+        <label>سن (سال)</label>
+        <input name="age" type="number" min="10" max="100" placeholder="مثلاً ۱۸" required>
 
-        <label for="age">سن (سال)</label>
-        <input id="age" name="age" type="number" min="10" max="100" placeholder="مثلاً ۱۸" required>
+        <label>قد (سانتی‌متر)</label>
+        <input name="height" type="number" min="100" max="230" placeholder="مثلاً ۱۷۵" required>
 
-        <label for="height">قد (سانتی‌متر)</label>
-        <input id="height" name="height" type="number" min="100" max="230" placeholder="مثلاً ۱۷۵" required>
+        <label>وزن (کیلوگرم)</label>
+        <input name="weight" type="number" min="20" max="300" step="0.1" placeholder="مثلاً ۶۵" required>
 
-        <label for="weight">وزن (کیلوگرم)</label>
-        <input id="weight" name="weight" type="number" min="20" max="300" step="0.1" placeholder="مثلاً ۶۵" required>
-
-        <label for="goal">هدف اصلی تو چیه؟</label>
-        <select id="goal" name="goal" required>
+        <label>هدف اصلی</label>
+        <select name="goal" required>
           <option value="">انتخاب هدف</option>
           <option value="muscle">عضله‌سازی و افزایش حجم</option>
           <option value="strength">افزایش قدرت</option>
-          <option value="fitness">تناسب اندام و آمادگی جسمانی</option>
+          <option value="fitness">تناسب اندام</option>
           <option value="endurance">افزایش استقامت</option>
           <option value="mobility">افزایش انعطاف‌پذیری</option>
         </select>
 
-        <label for="experience">سطح تجربه ورزشی</label>
-        <select id="experience" name="experience" required>
+        <label>سطح تجربه</label>
+        <select name="experience" required>
           <option value="">انتخاب سطح</option>
           <option value="beginner">مبتدی</option>
           <option value="intermediate">متوسط</option>
           <option value="advanced">پیشرفته</option>
         </select>
 
-        <button class="primary-button" type="submit">
-          ادامه ارزیابی ←
-        </button>
+        <button class="primary-button" type="submit">مرحله بعد ←</button>
       </form>
     </main>
   `;
 
-  document.getElementById("backHome").addEventListener("click", showDashboard);
+  document.getElementById("backHome").onclick = showDashboard;
 
-  document.getElementById("assessmentForm").addEventListener("submit", (event) => {
+  document.getElementById("assessmentForm").onsubmit = (event) => {
+    event.preventDefault();
+    const profile = Object.fromEntries(new FormData(event.target).entries());
+    localStorage.setItem("forge_profile", JSON.stringify(profile));
+    showTrainingAssessment();
+  };
+}
+
+function showTrainingAssessment() {
+  document.getElementById("app").innerHTML = `
+    <main class="dashboard">
+      <header class="app-header">
+        <button class="profile-button" id="backAssessment">→</button>
+        <div class="brand"><span class="brand-icon">F</span><span>FORGE</span></div>
+      </header>
+
+      <section class="welcome-section">
+        <p>مرحله ۲ از ۲</p>
+        <h2>چطور تمرین می‌کنی؟</h2>
+        <span>شرایط تمرینت رو مشخص کن تا برنامه مناسب‌تری بسازیم.</span>
+      </section>
+
+      <form id="trainingForm" class="assessment-form">
+        <label>محل تمرین</label>
+        <select name="location" required>
+          <option value="">انتخاب محل</option>
+          <option value="home">خانه</option>
+          <option value="gym">باشگاه</option>
+          <option value="both">خانه و باشگاه</option>
+        </select>
+
+        <label>تجهیزات در دسترس</label>
+        <select name="equipment" required>
+          <option value="">انتخاب تجهیزات</option>
+          <option value="none">بدون تجهیزات</option>
+          <option value="basic">تجهیزات ساده خانگی</option>
+          <option value="full">تجهیزات کامل باشگاهی</option>
+        </select>
+
+        <label>چند روز در هفته می‌تونی تمرین کنی؟</label>
+        <select name="days" required>
+          <option value="">انتخاب تعداد روز</option>
+          <option value="2">۲ روز</option>
+          <option value="3">۳ روز</option>
+          <option value="4">۴ روز</option>
+          <option value="5">۵ روز</option>
+          <option value="6">۶ روز</option>
+        </select>
+
+        <label>زمان هر جلسه</label>
+        <select name="duration" required>
+          <option value="">انتخاب زمان</option>
+          <option value="20">۲۰ دقیقه</option>
+          <option value="30">۳۰ دقیقه</option>
+          <option value="45">۴۵ دقیقه</option>
+          <option value="60">۶۰ دقیقه</option>
+          <option value="90">۹۰ دقیقه</option>
+        </select>
+
+        <label>محدودیت یا آسیب‌دیدگی داری؟</label>
+        <select name="limitations" required>
+          <option value="">انتخاب پاسخ</option>
+          <option value="none">خیر</option>
+          <option value="yes">بله</option>
+          <option value="unsure">مطمئن نیستم</option>
+        </select>
+
+        <button class="primary-button" type="submit">تکمیل ارزیابی ←</button>
+      </form>
+    </main>
+  `;
+
+  document.getElementById("backAssessment").onclick = showAssessment;
+
+  document.getElementById("trainingForm").onsubmit = (event) => {
     event.preventDefault();
 
-    const formData = new FormData(event.target);
-    const profile = Object.fromEntries(formData.entries());
+    const training = Object.fromEntries(new FormData(event.target).entries());
+    localStorage.setItem("forge_training", JSON.stringify(training));
 
-    localStorage.setItem("forge_profile", JSON.stringify(profile));
+    showAssessmentComplete();
+  };
+}
 
-    alert("اطلاعات اولیه ذخیره شد. مرحله بعدی ارزیابی را می‌سازیم.");
-  });
+function showAssessmentComplete() {
+  document.getElementById("app").innerHTML = `
+    <main class="dashboard">
+      <section class="setup-card">
+        <div class="setup-icon">✓</div>
+        <h3>ارزیابی اولیه تکمیل شد!</h3>
+        <p>اطلاعاتت ذخیره شد. حالا می‌تونیم وارد مرحله طراحی برنامه اختصاصی بشیم.</p>
+        <button class="primary-button" onclick="showDashboard()">بازگشت به خانه</button>
+      </section>
+    </main>
+  `;
 }
