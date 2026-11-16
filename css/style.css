@@ -269,3 +269,46 @@ button {
     padding: 21px 17px;
   }
 }
+
+.assessment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.assessment-form label {
+  margin-top: 9px;
+  color: #DAD9E8;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.assessment-form input,
+.assessment-form select {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 15px;
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 14px;
+  outline: none;
+  background: #15182A;
+  color: #F4F4FA;
+  font: inherit;
+  font-size: 14px;
+}
+
+.assessment-form input:focus,
+.assessment-form select:focus {
+  border-color: #9878FF;
+  box-shadow: 0 0 0 3px rgba(152,120,255,.12);
+}
+
+.assessment-form select option {
+  background: #15182A;
+  color: white;
+}
+
+.assessment-form .primary-button {
+  margin-top: 22px;
+}
